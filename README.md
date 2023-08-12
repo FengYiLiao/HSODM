@@ -1,2 +1,2 @@
 # HSODM
-Please install Manopt
+Please install Manopt[https://www.manopt.org/downloads.html]
