@@ -44,15 +44,15 @@ for i = 1:length(set)
     
     obj = [];
     Grad = [];
-    egrad = @(X) 2*C*X; 
-    ehess = @(X, U) 2*U;
-
+    prob.egrad = @(X) 2*C*X; %euclidean gradient
+    prob.ehess = @(X, U) 2*U;%euclidean hessian
+    
     stop ="";
     fprintf("iter  |   obj  |   opt   |  rgrad  |   eta   \n");
     Xk = X0;
     for iter = 1:para.Maxiter
         
-        gk = prob.M.egrad2rgrad(Xk,egrad(Xk)); %euclidean gradient to Riemannian gradient
+        gk = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); %euclidean gradient to Riemannian gradient
         Afun = @(x) F(x,Xk,prob,para);%Define a routine
         opts.v0 = [reshape(gk,[],1);rand(1)];%starting vector %This affects the convergence a lot!! %we start from the tangent space!
         [v,~] = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
@@ -69,7 +69,7 @@ for i = 1:length(set)
         
         eta = lineserach(Xk,dk,prob,para,@cost);
         Xk = prob.M.retr(Xk,dk,eta);%retraction 
-        normgk = norm(prob.M.egrad2rgrad(Xk,egrad(Xk)),'fro');%euclidean gradient to Riemannian gradient
+        normgk = norm(prob.M.egrad2rgrad(Xk,prob.egrad(Xk)),'fro');%euclidean gradient to Riemannian gradient
         obj = [obj;cost(C,Xk)];
         Grad = [Grad;normgk];
         if normgk<para.epislon
@@ -98,12 +98,12 @@ end
 
 
 function y = F(x,Xk,prob,para) %Eigenvector routine 
-    egrad = @(X) 2*prob.C*X;
-    ehess = @(X, U) 2*U;
-    gk = prob.M.egrad2rgrad(Xk,egrad(Xk)); 
+    %egrad = @(X) 2*prob.C*X;
+    %ehess = @(X, U) 2*U;
+    gk = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
     x1 = reshape(x(1:end-1),prob.n,prob.rank);
     x2 = x(end);
-    y = [reshape(prob.M.ehess2rhess(Xk,egrad(Xk),ehess(Xk,x1),x1)+para.delta*gk,[],1);
+    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+para.delta*gk,[],1);
         gk(:).'*x1(:) - para.delta*x2];
 end
 
