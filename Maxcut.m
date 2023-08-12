@@ -56,9 +56,8 @@ for i = 1:length(set)
         Afun = @(x) F(x,Xk,prob,para);%Define a routine
         opts.v0 = [reshape(gk,[],1);rand(1)];%starting vector %This affects the convergence a lot!! %we start from the tangent space!
         [v,~] = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
-        normv = norm(v);
 
-        vk = reshape(v(1:end-1),prob.n,prob.rank);
+        vk = reshape(v(1:end-1),prob.n,prob.rank);%vector on the tangent space
         tk = v(end);%the last element is scalar t
 
         if abs(tk) >= para.nu
@@ -97,9 +96,7 @@ end
 
 
 
-function y = F(x,Xk,prob,para) %Eigenvector routine 
-    %egrad = @(X) 2*prob.C*X;
-    %ehess = @(X, U) 2*U;
+function y = F(x,Xk,prob,para) %Eigenvector routine  %Xk is current iterate
     gk = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
     x1 = reshape(x(1:end-1),prob.n,prob.rank);
     x2 = x(end);
