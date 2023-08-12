@@ -3,6 +3,7 @@ clc;clear;
 set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','mcp250-1.mat','mcp250-2.mat','mcp250-3.mat','mcp250-4.mat',...
       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 saveroot = "result\hsodm\eta10\"; 
+dataroot = "data\sdplib\";
 % load("mcp250-3.mat");
 % [At,b,c,K]=fromsdpa('mcp500-4.dat-s');
 % n = width(At);
@@ -32,7 +33,7 @@ para.nu = 0.45;
 para.delta = 2; %the button right constant (control eigenvalue)
 para.eta  = 10; %initial line search step size
 for i = 1:length(set)
-    load(set{i})
+    load(dataroot+set{i});
     name = split(set{i},'.');
     prob.n = height(C);
     prob.rank = rank;
@@ -43,7 +44,7 @@ for i = 1:length(set)
     
     obj = [];
     Grad = [];
-    egrad = @(X) 2*C*X;
+    egrad = @(X) 2*C*X; 
     ehess = @(X, U) 2*U;
 
     stop ="";
@@ -51,7 +52,7 @@ for i = 1:length(set)
     Xk = X0;
     for iter = 1:para.Maxiter
         
-        gk = prob.M.egrad2rgrad(Xk,egrad(Xk)); %euclidean gradient 
+        gk = prob.M.egrad2rgrad(Xk,egrad(Xk)); %euclidean gradient to Riemannian gradient
         Afun = @(x) F(x,Xk,prob,para);%Define a routine
         opts.v0 = [reshape(gk,[],1);rand(1)];%starting vector %This affects the convergence a lot!! %we start from the tangent space!
         [v,~] = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
@@ -65,11 +66,10 @@ for i = 1:length(set)
         else
             dk = sign(-prob.M.inner(Xk, gk, vk))*vk;
         end
-        %eta = Threshold/normv;
-        %eta = 1; %step size
+        
         eta = lineserach(Xk,dk,prob,para,@cost);
         Xk = prob.M.retr(Xk,dk,eta);%retraction 
-        normgk = norm(prob.M.egrad2rgrad(Xk,egrad(Xk)),'fro');
+        normgk = norm(prob.M.egrad2rgrad(Xk,egrad(Xk)),'fro');%euclidean gradient to Riemannian gradient
         obj = [obj;cost(C,Xk)];
         Grad = [Grad;normgk];
         if normgk<para.epislon
@@ -97,10 +97,10 @@ end
 
 
 
-function y = F(x,Xk,prob,para)
+function y = F(x,Xk,prob,para) %Eigenvector routine 
     egrad = @(X) 2*prob.C*X;
     ehess = @(X, U) 2*U;
-    gk = prob.M.egrad2rgrad(Xk,egrad(Xk));
+    gk = prob.M.egrad2rgrad(Xk,egrad(Xk)); 
     x1 = reshape(x(1:end-1),prob.n,prob.rank);
     x2 = x(end);
     y = [reshape(prob.M.ehess2rhess(Xk,egrad(Xk),ehess(Xk,x1),x1)+para.delta*gk,[],1);

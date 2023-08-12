@@ -4,14 +4,14 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
 
 rank =15;
 epislon = 10^-6;
-
+dataroot = "data\sdplib\";
 
 
 
 %manopt
 
 for i = 1:length(set)
-    load(set{i})
+    load(dataroot+set{i});
     name = split(set{i},'.');
     n = height(C);
     egrad = @(X) 2*C*X;
@@ -24,5 +24,5 @@ for i = 1:length(set)
     opt.tolgradnorm = epislon;
     [x, xcost, info, options] = trustregions(problem,[],opt);
     %disp('wait');
-    save("result\"+name{1}+"-result.mat",'x', 'xcost', 'info', 'options');
+   % save("result\"+name{1}+"-result.mat",'x', 'xcost', 'info', 'options');
 end
