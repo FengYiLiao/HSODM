@@ -8,5 +8,5 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
     T     = load("manopt\"+name{1}+"-result.mat");
     Out1  = load("hsodm\eta1\"+name{1}+"-result.mat");
     Out10 = load("hsodm\eta10\"+name{1}+"-result.mat");
-    fprintf("%6s      %6d       %6d        %6d \n",name{1},length(T.info),Out1.Out.iter,Out10.Out.iter);
+    fprintf("%6s      %6d       %6d        %6d \n",name{1},T.info.iter,Out1.Out.iter,Out10.Out.iter);
   end
