@@ -28,7 +28,7 @@ prob.routine = @routine; %power method routine
 for i = 1:1%length(set)
     load(dataroot+set{i});
     name = split(set{i},'.');
-    Out = HSODM(prob,para); 
+    Out = HSODM(prob,para);  %main function 
     %save(saveroot+name{1}+"-result.mat",'Out');
 end
 
