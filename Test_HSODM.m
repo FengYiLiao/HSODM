@@ -8,7 +8,7 @@ dataroot = "data\sdplib\";
 load(dataroot+set{1});
 
 para.epislon = 10^-6;%desired gradient accuracy
-para.Maxiter = 30000;%Maximum iterations
+para.Maxiter = 3000;%Maximum iterations
 para.beta = 0.5;%line search parameter: reduction
 para.gamma = 2;%line search parameter: a constant
 para.Threshold =2; %This is cap delta (trigangle) in the paper
@@ -25,7 +25,7 @@ prob.ehess = @(X, U) 2*U;%euclidean hessian
 prob.routine = @routine; %power method routine
 
 
-for i = 1:length(set)
+for i = 1:1%length(set)
     load(dataroot+set{i});
     name = split(set{i},'.');
     Out = HSODM(prob,para); 
