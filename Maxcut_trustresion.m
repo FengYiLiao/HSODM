@@ -9,8 +9,9 @@ dataroot = "data\sdplib\";
 %Use manopt to solve the problem
 %Remember to include manopt's path
 
-for i = 1:length(set)
-    load(dataroot+set{i});
+for i = 1:1%length(set)
+    %load(dataroot+set{i});
+    load("data\G1.mat");
     name = split(set{i},'.');
     n = height(C);
     problem.M = obliquefactory(rank,n,true); %create a manifold

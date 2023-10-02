@@ -3,7 +3,7 @@ addpath("package\");
 set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','mcp250-1.mat','mcp250-2.mat','mcp250-3.mat','mcp250-4.mat',...
       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 
-saveroot = "result\hsodm"; 
+saveroot = "result\hsodm\d2\"; 
 dataroot = "data\sdplib\";
 load(dataroot+set{1});
 
@@ -14,7 +14,7 @@ para.gamma = 2;%line search parameter: a constant
 para.Threshold =2; %This is cap delta (trigangle) in the paper
 para.nu = 0.45;
 para.delta = 2; %the button right constant (control eigenvalue)
-para.eta  = 10; %%initial line search step size
+para.eta  = 1; %%initial line search step size
 
 prob.n = height(C);
 prob.rank = 15;
@@ -29,7 +29,7 @@ for i = 1:length(set)
     load(dataroot+set{i});
     name = split(set{i},'.');
     Out = HSODM(prob,para); 
-    %save(saveroot+name{1}+"-result.mat",'Out');
+    save(saveroot+name{1}+"-result.mat",'Out');
 end
 
 
