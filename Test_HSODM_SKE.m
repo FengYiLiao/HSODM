@@ -5,14 +5,22 @@ addpath("package\");
 %saveroot = "result\hsodm"; 
 dataroot = "data\KSE\";
 load(dataroot+"n1000r20"+".mat");
+%L = full(L);
+
+% %testing
+% n = 100;
+% e = ones(n,1);
+% L = spdiags([-e,2*e,-e],[-1,0,1],n,n);
+% L = full(L);
+% r = 10;
 
 para.epislon   = 10^-6; %desired gradient accuracy
-para.Maxiter   = 1000; %Maximum iterations
+para.Maxiter   = 5000; %Maximum iterations
 para.beta      = 0.75;   %line search parameter: reduction
 para.gamma     = 2;     %line search parameter: a constant
 para.Threshold = 2;     %This is cap delta (trigangle) in the paper
-para.nu        = 0.45;
-para.delta     = 2;     %the button right constant (control eigenvalue)
+para.nu        = 0.25;
+para.delta     = 1.5;     %the button right constant (control eigenvalue)
 para.eta       = 1;     %initial line search step size
 para.step      = 1;
 prob.n         = n;%height(C);
@@ -37,6 +45,7 @@ prob.routine   = @routine;                              %power method routine
 tic;
 opt.maxiter = 30000;
 %opt.tolgradnorm = epislon;
+
 %[x, xcost, info, options] = trustregions(prob,[],opt); %manopt function
 Out = HSODM(prob,para);  %main function 
 toc;
@@ -58,14 +67,15 @@ end
 function y = cost(X,L,invL)
     R = L*X;
     d = sum(X.*X,2);
-    y = 0.5*(X(:).'*R(:)) + (d'*invL*d)/4;
+%     y = 0.5*(X(:).'*R(:)) + (d'*invL*d)/4;
+    y = 0.5*(X(:).'*R(:)) + (d'*(L\d))/4;
     %R = X'*X;
     %y = L(:).'*R(:);
 end
 
 function y = egrad(X,L,invL)
     d = sum(X.*X,2);
-    %R = invL*d;
+%     R = invL*d;
     R = L\d;
     y = L*X + R.*X;
 end
@@ -77,5 +87,6 @@ function y = ehess(X,L,invL,U)
 %     invLd2 = invL*d2;
     invLd  = L\(2*d);
     invLd2 =  L\d2;
-    y = L*U+invLd.*U+invLd2.*U;
+    %y = L*U+invLd.*U+invLd2.*U;
+    y = L*U+(invLd+invLd2).*U;
 end
