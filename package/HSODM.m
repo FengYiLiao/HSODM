@@ -2,7 +2,11 @@ function Out = HSODM(prob,para)
     %HSODM stops when Riemannian gradient reaches desired accuracy
     obj  = [];
     Grad = [];
-    X0   = prob.M.rand(); %initial point
+    if isfield(para,"X0")
+        X0   = para.X0;
+    else
+        X0   = prob.M.rand(); %initial point
+    end
     Xk   = X0;
     stop = "";
     fprintf("iter  |   obj  |  rgrad  |   eta   \n");
@@ -34,7 +38,7 @@ function Out = HSODM(prob,para)
             stop = "rgrad reaches desired accuracy!";
             break;
         end
-        if (mod(iter,10)== 0)
+        if (mod(iter,para.step)== 0)
             fprintf("%d     %3.1f  %+.3e   %3.4f \n",iter,obj(iter),normgk,eta);
         end
     end
@@ -53,9 +57,9 @@ end
 
 function y = lineserach(X,dk,prob,para)
     etak = para.eta;
-    Costant = para.gamma/6*norm(dk,'fro')^2*etak^3;
+    Costant = para.gamma/6*norm(dk,'fro')^3*etak^3;
     iter = 1;
-    while iter <= 15
+    while iter <= 100
         Dk= prob.cost(X) - prob.cost(prob.M.retr(X,dk,etak));
         if Dk >= Costant*etak^3
             break;

@@ -9,7 +9,7 @@ load(dataroot+"n1000r20"+".mat");
 para.epislon   = 10^-6; %desired gradient accuracy
 para.Maxiter   = 1000; %Maximum iterations
 para.beta      = 0.75;   %line search parameter: reduction
-para.gamma     = 2;     %line search parameter: a constant
+para.gamma     = ;     %line search parameter: a constant
 para.Threshold = 2;     %This is cap delta (trigangle) in the paper
 para.nu        = 0.45;
 para.delta     = 2;     %the button right constant (control eigenvalue)

@@ -4,9 +4,9 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 
 %saveroot = "result\hsodm"; 
-dataroot = "data";
-%load(dataroot+set{1});
-load(dataroot+"G1.mat");
+dataroot = "data\sdplib\";
+load(dataroot+set{8});
+%load(dataroot+"G1.mat");
 %load(dataroot+"n1000r20");
 
 para.epislon   = 10^-6; %desired gradient accuracy
@@ -23,7 +23,7 @@ prob.rank      = 15;
 prob.M         = obliquefactory(prob.rank,prob.n,true); %Create a mainfold
 prob.cost      = @(X) cost(X,C);
 prob.egrad     = @(X) 2*C*X;                            %euclidean gradient
-prob.ehess     = @(X, U) 2*U;                           %euclidean hessian
+prob.ehess     = @(X, U) 2*C*U;                           %euclidean hessian
 prob.routine   = @routine;                              %power method routine
 
 tic;
@@ -45,6 +45,8 @@ function y = routine(x,Xk,prob,para) %power method routine  %Xk is current itera
 end
 
 function y = cost(X,C)
-    R = X*X';
-    y = C(:).'*R(:);
+%     R = X*X';
+%     y = C(:).'*R(:);
+    R = C*X;
+    y = X(:).'*R(:);
 end
