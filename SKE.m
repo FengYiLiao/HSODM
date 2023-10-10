@@ -2,8 +2,8 @@ clc;clear;
 addpath("package\");
 dataroot = "data\KSE\";
 
-saveroot = "result\hsodm\SKE\"; 
-
+%saveroot = "result\hsodm\SKE\"; 
+saveroot = "result\manopt\SKE\";
 
 para.epislon   = 10^-6;%desired gradient accuracy
 para.Maxiter   = 5000;%Maximum iterations
@@ -17,8 +17,8 @@ para.step      = 5;
 
 
 
-for N = 7000%[1000,2000,5000,7000,10000]
-    for j = 20%[20,50]
+for N = [1000,2000,5000,7000,10000]
+    for j = [20,50]
         name = "n"+num2str(N)+"r"+num2str(j);
         load(dataroot+name+".mat");
         
@@ -32,9 +32,13 @@ for N = 7000%[1000,2000,5000,7000,10000]
         prob.ehess     = @(X, U) ehess(X,L,invL,U); %euclidean hessian
         prob.routine   = @routine;                  %power method routine
         
-        %name = split(set{i},'.');
-        Out = HSODM(prob,para); 
-        save(saveroot+name+"-result.mat",'Out');
+        opt.maxiter = 30000;
+        opt.tolgradnorm = para.epislon;
+        [x, xcost, info, options] = trustregions(prob,[],opt); %manopt function
+        
+        %Out = HSODM(prob,para); 
+        %save(saveroot+name+"-result.mat",'Out');
+        save(saveroot+name+"-result.mat",'x', 'xcost', 'info', 'options');
     end
 end
 

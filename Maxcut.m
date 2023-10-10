@@ -3,11 +3,11 @@ addpath("package\");
 set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','mcp250-1.mat','mcp250-2.mat','mcp250-3.mat','mcp250-4.mat',...
       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 
-saveroot = "result\hsodm\d2\"; 
+saveroot = "result\hsodm\eta1\"; 
 dataroot = "data\sdplib\";
-load(dataroot+set{1});
+%load(dataroot+set{1});
 
-para.epislon = 10^-6;%desired gradient accuracy
+para.epislon = 10^-5;%desired gradient accuracy
 para.Maxiter = 30000;%Maximum iterations
 para.beta = 0.5;%line search parameter: reduction
 para.gamma = 2;%line search parameter: a constant
@@ -17,18 +17,21 @@ para.delta = 2; %the button right constant (control eigenvalue)
 para.eta  = 1; %%initial line search step size
 para.step = 10;
 
-prob.n = height(C);
-prob.rank = 15;
-prob.M = obliquefactory(prob.rank,prob.n,true); %Create a mainfold
-prob.cost = @(X) cost(X,C);
-prob.egrad = @(X) 2*C*X; %euclidean gradient
-prob.ehess = @(X, U) 2*C*U;%euclidean hessian
-prob.routine = @routine; %power method routine
+
 
 
 for i = 1:length(set)
     load(dataroot+set{i});
     name = split(set{i},'.');
+
+    prob.n = height(C);
+    prob.rank    = 15;
+    prob.M       = obliquefactory(prob.rank,prob.n,true); %Create a mainfold
+    prob.cost    = @(X) cost(X,C);
+    prob.egrad   = @(X) 2*C*X; %euclidean gradient
+    prob.ehess   = @(X, U) 2*C*U;%euclidean hessian
+    prob.routine = @routine; %power method routine
+
     Out = HSODM(prob,para); 
     save(saveroot+name{1}+"-result.mat",'Out');
 end

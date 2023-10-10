@@ -56,10 +56,6 @@ function y = routine(X,Xk,prob,para) %power method routine  %Xk is current itera
     gk       = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
     x1       = reshape(X(1:end-1),prob.n,prob.rank);
     x2       = X(end);
-%     y        = zeros(prob.n*prob.rank+1,1);
-%     temp     = prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+para.delta*gk;
-%     y(1:end-1) = temp(:);
-%     y(end)   = gk(:).'*x1(:) - para.delta*x2;
     y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+para.delta*gk,[],1);
         gk(:).'*x1(:) - para.delta*x2];
 end
