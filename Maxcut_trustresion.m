@@ -16,9 +16,9 @@ for i = 1:1%length(set)
     n = height(C);
     problem.M = obliquefactory(rank,n,true); %create a manifold
     problem.egrad = @(X) 2*C*X; %euclidean gradient
-    problem.ehess = @(X, U) 2*U;%euclidean hessian
+    problem.ehess = @(X, U) 2*C*U;%euclidean hessian
     problem.cost  = @(X) trace(X.'*C*X);
-    opt.maxiter = 30000;
+    opt.maxiter   = 30000;
     opt.tolgradnorm = epislon;
     [x, xcost, info, options] = trustregions(problem,[],opt); %manopt function
     %save("result\"+name{1}+"-result.mat",'x', 'xcost', 'info', 'options');

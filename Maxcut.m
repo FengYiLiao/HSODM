@@ -15,13 +15,14 @@ para.Threshold =2; %This is cap delta (trigangle) in the paper
 para.nu = 0.45;
 para.delta = 2; %the button right constant (control eigenvalue)
 para.eta  = 1; %%initial line search step size
+para.step = 10;
 
 prob.n = height(C);
 prob.rank = 15;
 prob.M = obliquefactory(prob.rank,prob.n,true); %Create a mainfold
 prob.cost = @(X) cost(X,C);
 prob.egrad = @(X) 2*C*X; %euclidean gradient
-prob.ehess = @(X, U) 2*U;%euclidean hessian
+prob.ehess = @(X, U) 2*C*U;%euclidean hessian
 prob.routine = @routine; %power method routine
 
 

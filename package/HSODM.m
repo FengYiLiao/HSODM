@@ -15,7 +15,9 @@ function Out = HSODM(prob,para)
         gk      = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); %euclidean gradient to Riemannian gradient %As the initial guess for the power method
         Afun    = @(x) prob.routine(x,Xk,prob,para);%Define a routine
         opts.v0 = [reshape(gk,[],1);rand(1)];%starting vector %This affects the convergence a lot!! %we start from the tangent space!
+        %[v,~]   = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
         [v,~]   = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
+        v = real(v); %compensate computational error
         vk      = reshape(v(1:end-1),prob.n,prob.rank);%vector on the tangent space
         tk      = v(end);%the last element is scalar t
 
@@ -59,7 +61,7 @@ function y = lineserach(X,dk,prob,para)
     etak = para.eta;
     Costant = para.gamma/6*norm(dk,'fro')^3*etak^3;
     iter = 1;
-    while iter <= 100
+    while iter <= 30
         Dk= prob.cost(X) - prob.cost(prob.M.retr(X,dk,etak));
         if Dk >= Costant*etak^3
             break;
