@@ -6,7 +6,7 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
   fprintf("  Name   |    RTR    |  HSODM  \n")
   for i = 1%:length(set)
     name  = split(set{i},'.');
-    load("D:\UCSD\Research\HSODM\data\sdplib\"+name{1}+".mat");
+    load("..\data\sdplib\"+name{1}+".mat");
     T     = load("manopt\MaxCut\"+name{1}+"-result.mat");
     Out1  = load("hsodm\MaxCut\eta1\"+name{1}+"-result.mat");
     fprintf("%6s      %3d       %3d\n",name{1},T.info(end).iter,Out1.Out.iter);
