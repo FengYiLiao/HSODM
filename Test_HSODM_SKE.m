@@ -47,7 +47,8 @@ opt.maxiter = 30000;
 opt.tolgradnorm = para.epislon;
 
 %[x, xcost, info, options] = trustregions(prob,[],opt); %manopt function
-Out = HSODM(prob,para);  %main function 
+[x, xcost, info, options] = steepestdescent(prob,[],opt);
+%Out = HSODM(prob,para);  %main function 
 toc;
 
 

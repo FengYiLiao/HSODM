@@ -5,12 +5,12 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
 
 %saveroot = "result\hsodm"; 
 dataroot = "data\sdplib\";
-load(dataroot+set{8});
+load(dataroot+set{1});
 %load(dataroot+"G1.mat");
 %load(dataroot+"n1000r20");
 
 para.epislon   = 10^-6; %desired gradient accuracy
-para.Maxiter   = 30000; %Maximum iterations
+para.Maxiter   = 1000; %Maximum iterations
 para.beta      = 0.5;   %line search parameter: reduction
 para.gamma     = 2;     %line search parameter: a constant
 para.Threshold = 2;     %This is cap delta (trigangle) in the paper
@@ -18,6 +18,8 @@ para.nu        = 0.45;
 para.delta     = 2;     %the button right constant (control eigenvalue)
 para.eta       = 1;     %initial line search step size
 para.step      = 10;
+para.adp_delta = true;  %adaptively tuning delta or not
+para.delta_min   = 10^-3;
 
 prob.n         = height(C);
 prob.rank      = 15;
@@ -38,10 +40,6 @@ function y = routine(x,Xk,prob,para) %power method routine  %Xk is current itera
     gk       = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
     x1       = reshape(x(1:end-1),prob.n,prob.rank);
     x2       = x(end);   
-%     y        = zeros(prob.n*prob.rank+1,1);
-%     temp     = prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+para.delta*gk;
-%     y(1:end-1) = temp(:);
-%     y(end)   = gk(:).'*x1(:) - para.delta*x2;
     y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+para.delta*gk,[],1);
         gk(:).'*x1(:) - para.delta*x2];
 end

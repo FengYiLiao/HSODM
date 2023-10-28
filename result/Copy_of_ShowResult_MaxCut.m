@@ -3,23 +3,54 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
   
   %fprintf("  Name   |    RTR    |  HSODM-1   |  HSODM-10  |   HSODM-D2 \n")
-  fprintf("  Name   |    RTR    |  HSODM  \n")
-  for i = 1%:length(set)
-    name  = split(set{i},'.');
+  fprintf("  Name   |    RTR    |  HSODM   |    GD \n")
+  for i =8%:length(set)
+    name        = split(set{i},'.');
     load("..\data\sdplib\"+name{1}+".mat");
-    T     = load("manopt\MaxCut\"+name{1}+"-result.mat");
-    Out1  = load("hsodm\MaxCut\eta1\"+name{1}+"-result.mat");
-    fprintf("%6s      %3d       %3d\n",name{1},T.info(end).iter,Out1.Out.iter);
-    semilogy(1:length(Out1.Out.obj),Out1.Out.obj-Truecost);
     
-    CostRT = zeros(length(T.info),1);
-    for j = 1 : length(T.info)
-        CostRT(j) = T.info(j).cost;
+    Out_RTR     = load("manopt\RTR\MaxCut\"+name{1}+"-result.mat");
+    Out_GD     = load("manopt\GD\MaxCut\"+name{1}+"-result.mat");
+    Out_hsodm   = load("hsodm\MaxCut\"+name{1}+"-result.mat");
+    
+    fprintf("%6s      %3d       %3d       %3d\n", ...
+        name{1},Out_RTR.info(end).iter,Out_hsodm.Out.iter,Out_GD.info(end).iter);
+    
+    
+    subplot(1,2,1);
+
+    CostRTR = zeros(length(Out_RTR.info),1);
+    for j = 1 : length(Out_RTR.info)
+        CostRTR(j) = Out_RTR.info(j).cost;
     end
+    semilogy(1:length(CostRTR),abs(CostRTR-Truecost));
+    
     hold on;
-    semilogy(1:length(CostRT),abs(CostRT-Truecost));
-    %plot(Out1.Out.obj-Truecost);
-%     Out10 = load("hsodm\eta10\"+name{1}+"-result.mat");
-%     OutD2 = load("hsodm\d2\"+name{1}+"-result.mat");
-%     fprintf("%6s      %6d       %6d        %6d     %6d\n",name{1},T.info.iter,Out1.Out.iter,Out10.Out.iter,OutD2.Out.iter);
+
+    CostGD = zeros(length(Out_GD.info),1);
+    for j = 1 : length(Out_GD.info)
+        CostGD(j) = Out_GD.info(j).cost;
+    end
+    semilogy(1:length(CostGD),abs(CostGD-Truecost));
+
+    semilogy(1:length(Out_hsodm.Out.obj),Out_hsodm.Out.obj-Truecost);
+    legend('RTR','GD','HSODM');
+    title('Cost value gap');
+    subplot(1,2,2);
+    GradRTR = zeros(length(Out_RTR.info),1);
+    for j = 1 : length(Out_RTR.info)
+        GradRTR(j) = Out_RTR.info(j).gradnorm;
+    end
+    semilogy(1:length(GradRTR),abs(GradRTR));
+
+    hold on;
+
+    GradGD = zeros(length(Out_GD.info),1);
+    for j = 1 : length(Out_GD.info)
+        GradGD(j) = Out_GD.info(j).gradnorm;
+    end
+    semilogy(1:length(GradGD),abs(GradGD));
+
+    semilogy(1:length(Out_hsodm.Out.grad),Out_hsodm.Out.grad);
+    legend('RTR','GD','HSODM');
+    title('gradnorm');
   end
