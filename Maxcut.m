@@ -21,7 +21,7 @@ para.delta_min = 10^-3;
 
 
 
-for i = 2%1:length(set)
+for i = 1:length(set)
     load(dataroot+set{i});
     name = split(set{i},'.');
 
@@ -38,15 +38,25 @@ for i = 2%1:length(set)
 end
 
 
-function y = routine(x,Xk,prob,para) %Eigenvector routine  %Xk is current iterate
-    gk = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
-    x1 = reshape(x(1:end-1),prob.n,prob.rank);
-    x2 = x(end);
-    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+para.delta*gk,[],1);
+function y = routine(x,Xk,prob,para) %power method routine  %Xk is current iterate
+    gk       = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
+    x1       = reshape(x(1:end-1),prob.n,prob.rank);
+    x2       = x(end);   
+    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+x2*gk,[],1);
         gk(:).'*x1(:) - para.delta*x2];
 end
 
 function y = cost(X,C)
-    R = X*X';
-    y = C(:).'*R(:);
+%     R = X*X';
+%     y = C(:).'*R(:);
+    R = C*X;
+    y = X(:).'*R(:);
+end
+
+function y = routine_2(x,Xk,prob,para,delta) %power method routine  %Xk is current iterate
+    gk       = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
+    x1       = reshape(x(1:end-1),prob.n,prob.rank);
+    x2       = x(end);   
+    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+x2*gk,[],1);
+        gk(:).'*x1(:) - delta*x2];
 end

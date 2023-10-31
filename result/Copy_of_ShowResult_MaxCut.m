@@ -1,10 +1,10 @@
-clc;clear;
+clc;clear;close all;
 set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','mcp250-1.mat','mcp250-2.mat','mcp250-3.mat','mcp250-4.mat',...
       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
   
   %fprintf("  Name   |    RTR    |  HSODM-1   |  HSODM-10  |   HSODM-D2 \n")
   fprintf("  Name   |    RTR    |  HSODM   |    GD \n")
-  for i =8%:length(set)
+  for i =13%:length(set)
     name        = split(set{i},'.');
     load("..\data\sdplib\"+name{1}+".mat");
     

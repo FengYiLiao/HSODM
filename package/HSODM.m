@@ -65,11 +65,12 @@ function Out = HSODM(prob,para)
 
         %adaptively change delta
         if para.adp_delta
-            if normgk <=10^-2
-                para.delta = 2;
-            else
-                para.delta = max(para.delta_min,normgk^(1/2));
-            end
+%             if normgk <=10^-2
+%                 para.delta = 2;
+%             else
+%                 para.delta = max(para.delta_min,normgk^(1/2));
+%             end
+             para.delta =normgk^(1/2);
         end
     end
     if iter == para.Maxiter 

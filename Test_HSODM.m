@@ -40,7 +40,7 @@ function y = routine(x,Xk,prob,para) %power method routine  %Xk is current itera
     gk       = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
     x1       = reshape(x(1:end-1),prob.n,prob.rank);
     x2       = x(end);   
-    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+para.delta*gk,[],1);
+    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+x2*gk,[],1);
         gk(:).'*x1(:) - para.delta*x2];
 end
 
@@ -55,6 +55,6 @@ function y = routine_2(x,Xk,prob,para,delta) %power method routine  %Xk is curre
     gk       = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
     x1       = reshape(x(1:end-1),prob.n,prob.rank);
     x2       = x(end);   
-    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+delta*gk,[],1);
+    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+x2*gk,[],1);
         gk(:).'*x1(:) - delta*x2];
 end

@@ -52,8 +52,8 @@ function Out = HSODM_2(prob,option)
             delta_low  = min(e_s,-sqrt(Ih_max));
             delta_high = max(((1+e_s)^2*(1+e_l)+abs(e_s))/Ih_min,norm(prob.M.egrad2rgrad(Xk,prob.egrad(Xk)),'fro')^2);
     
-            delta_low  = 2;
-            delta_high = 3;
+            delta_low  = -2;
+            delta_high = -1;
 
 
             %Define a routine for power method
@@ -61,13 +61,14 @@ function Out = HSODM_2(prob,option)
             Afun_high   = @(x) prob.routine_2(x,Xk,prob,delta_low); 
     
     
-            opts.v0 = [reshape(gk,[],1);rand(1)];  
+            opts.v0  = [reshape(gk,[],1);rand(1)];  
     
             %low
-            [v1,e1]   = eigs(Afun_low,prob.n*prob.rank+1,1,'smallestreal',opts);
+            [v1,e1]  = eigs(Afun_low,prob.n*prob.rank+1,1,'smallestreal',opts);
     
             %compensate computational error
             v1       = real(v1); 
+            e1       = real(e1);
             vk1      = reshape(v1(1:end-1),prob.n,prob.rank);%vector on the tangent space
             tk1      = v1(end);                              %the last element is scalar t    
             dk1      = vk1/tk1;
@@ -80,16 +81,17 @@ function Out = HSODM_2(prob,option)
     
             %compensate computational error
             v2       = real(v2); 
+            e2       = real(e2);  
             vk2      = reshape(v2(1:end-1),prob.n,prob.rank);%vector on the tangent space
             tk2      = v2(end);                              %the last element is scalar t    
             dk2      = vk2/tk2;
        
-            h_high  = h(-e2,dk2); %the value we need in the bisection
+            h_high   = h(-e2,dk2); %the value we need in the bisection
     
-            h1      = h_low;
-            h2      = h_high;
-            delta_1 = delta_high;
-            delta_2 = delta_low;
+            h1       = h_low;
+            h2       = h_high;
+            delta_1  = delta_high;
+            delta_2  = delta_low;
     
             while true
                 
@@ -227,7 +229,9 @@ end
 
 
 function y = h(theta,d)
-    y = (theta/norm(d,'fro'))^2;
+    temp  = norm(d,'fro');
+    temp1 = theta/norm(d,'fro');
+    y     = (theta/norm(d,'fro'))^2;
 end
 
 function para = initialization(prob,option)
