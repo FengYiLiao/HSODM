@@ -5,7 +5,7 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
 
 %saveroot = "result\hsodm"; 
 dataroot = "data\sdplib\";
-load(dataroot+set{1});
+load(dataroot+set{2});
 %load(dataroot+"G1.mat");
 %load(dataroot+"n1000r20");
 
@@ -15,7 +15,7 @@ para.beta      = 0.5;   %line search parameter: reduction
 para.gamma     = 2;     %line search parameter: a constant
 para.Threshold = 2;     %This is cap delta (trigangle) in the paper
 para.nu        = 0.45;
-para.delta     = 2;     %the button right constant (control eigenvalue)
+para.delta     = 5;     %the button right constant (control eigenvalue)
 para.eta       = 1;     %initial line search step size
 para.step      = 10;
 para.adp_delta = true;  %adaptively tuning delta or not

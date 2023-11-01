@@ -14,15 +14,16 @@ load(dataroot+"n2000r20"+".mat");
 % L = full(L);
 % r = 10;
 
-para.epislon   = 10^-7; %desired gradient accuracy
+para.epislon   = 10^-6; %desired gradient accuracy
 para.Maxiter   = 5000;  %Maximum iterations
 para.beta      = 0.75;  %line search parameter: reduction
 para.gamma     = 2;     %line search parameter: a constant
 para.Threshold = 2;     %This is cap delta (trigangle) in the paper
-para.nu        = 0.25;
-para.delta     = 1;     %the button right constant (control eigenvalue)
+para.nu        = 0.45;
+para.delta     = 2;     %the button right constant (control eigenvalue)
 para.eta       = 1;     %initial line search step size
 para.step      = 1;
+para.adp_delta = true;  %adaptively tuning delta or not
 prob.n         = n;%height(C);
 prob.rank      = r;
 prob.M         = stiefelfactory(prob.n,prob.rank,1); %Create a mainfold
@@ -47,8 +48,8 @@ opt.maxiter = 30000;
 opt.tolgradnorm = para.epislon;
 
 %[x, xcost, info, options] = trustregions(prob,[],opt); %manopt function
-[x, xcost, info, options] = steepestdescent(prob,[],opt);
-%Out = HSODM(prob,para);  %main function 
+%[x, xcost, info, options] = steepestdescent(prob,[],opt);
+Out = HSODM(prob,para);  %main function 
 toc;
 
 
@@ -57,7 +58,7 @@ function y = routine(X,Xk,prob,para) %power method routine  %Xk is current itera
     gk       = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
     x1       = reshape(X(1:end-1),prob.n,prob.rank);
     x2       = X(end);
-    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+para.delta*gk,[],1);
+    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+x2*gk,[],1);
         gk(:).'*x1(:) - para.delta*x2];
 end
 

@@ -9,7 +9,7 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
     for j = [20,50]
     %name  = split(set{i},'.');
     name = "n"+num2str(N)+"r"+num2str(j);
-    T     = load("manopt\SKE\"+name+"-result.mat");
+    T     = load("manopt\RTR\SKE\"+name+"-result.mat");
     Out1  = load("hsodm\SKE\"+name+"-result.mat");
     fprintf("%6s      %3d       %3d\n",name{1},T.info(end).iter,Out1.Out.iter);
     end
