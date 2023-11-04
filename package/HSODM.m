@@ -70,7 +70,7 @@ function Out = HSODM(prob,para)
 %             else
 %                 para.delta = max(para.delta_min,normgk^(1/2));
 %             end
-             para.delta =normgk^(1/2);
+             para.delta =normgk^(1/1.5);
         end
     end
     if iter == para.Maxiter 

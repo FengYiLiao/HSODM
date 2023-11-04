@@ -5,7 +5,7 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
 
 %saveroot = "result\hsodm"; 
 dataroot = "data\sdplib\";
-load(dataroot+set{2});
+load(dataroot+set{8});
 %load(dataroot+"G1.mat");
 %load(dataroot+"n1000r20");
 
@@ -19,7 +19,10 @@ para.delta     = 5;     %the button right constant (control eigenvalue)
 para.eta       = 1;     %initial line search step size
 para.step      = 10;
 para.adp_delta = true;  %adaptively tuning delta or not
+para.M         = 1.5;   %adaptive parameter
 para.delta_min   = 10^-3;
+
+
 
 prob.n         = height(C);
 prob.rank      = 15;
@@ -32,6 +35,7 @@ prob.routine   = @routine;                              %power method routine
 tic;
 Out = HSODM(prob,para);  %main function 
 %[x, xcost, info, options] = trustregions(prob); %manopt function
+%[x, xcost, info, options] = conjugategradient(prob);
 toc;
 
 
