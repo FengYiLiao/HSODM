@@ -19,7 +19,14 @@ function Out = HSODM(prob,para)
     if ~isfield(para,"delta_min")
         para.delta_min = 2; %default value
     end
+    
+    if ~isfield(para,"L")
+        para.L = 2;%default value
+    end
 
+    if ~isfield(para,"para.")
+        para.linesearch = true;
+    end
 
     stop = "";
     fprintf("iter  |   obj  |  rgrad  |   eta   |   delta \n");
@@ -48,7 +55,12 @@ function Out = HSODM(prob,para)
         end
         
         %line search for step size
-        eta    = lineserach(Xk,dk,prob,para);
+        if para.linesearch
+            eta    = lineserach(Xk,dk,prob,para);
+        else
+            eta    = 1;
+        end
+        
         
         %retraction 
         Xk     = prob.M.retr(Xk,dk,eta);

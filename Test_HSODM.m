@@ -4,9 +4,9 @@ set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','
       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 
 %saveroot = "result\hsodm"; 
-dataroot = "data\sdplib\";
-load(dataroot+set{8});
-%load(dataroot+"G1.mat");
+dataroot = "data\";
+%load(dataroot+set{7});
+load(dataroot+"G1.mat");
 %load(dataroot+"n1000r20");
 
 para.epislon   = 10^-6; %desired gradient accuracy
@@ -19,8 +19,9 @@ para.delta     = 5;     %the button right constant (control eigenvalue)
 para.eta       = 1;     %initial line search step size
 para.step      = 10;
 para.adp_delta = true;  %adaptively tuning delta or not
-para.M         = 1.5;   %adaptive parameter
-para.delta_min   = 10^-3;
+para.linesearch = false;
+para.L         = 2;   %adaptive parameter
+para.delta_min = 10^-3;
 
 
 
