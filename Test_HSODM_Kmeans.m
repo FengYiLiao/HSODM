@@ -1,7 +1,7 @@
 clc;clear; close all;
 addpath("package\");
 %addpath("C:\Users\SOC-LAB\FengYi\Solver\DRSOM\Spherical_alg\Kmeans");
-addpath("D:\UCSD\Research\Solvers\DRSOM\Spherical_alg\Kmeans");
+addpath("package\Spherical_alg\Kmeans");
 %saveroot = "result\hsodm"; 
 dataroot = "data\Kmeans\";
 load(dataroot+"ecoli.mat");
@@ -32,14 +32,15 @@ prob.rank      = 10;%width(M);
 Y              = M./max(abs(M));
 W              = -Y*Y'; 
 lambda         = 100;
-prob.M         = kmeansfactory(prob.n,prob.rank); %Create a mainfold
+prob.M         = Kmeansfactory(prob.n,prob.rank); %Create a mainfold
 
 
 %prob.M.retraction()
 
 prob.cost      = @(X) cost(X,W,lambda);
-%prob.cost(X0)
-%X2             = randn(prob.n,prob.rank);
+
+% X0             = randn(prob.n,prob.rank);
+% prob.cost(X0)
 %tang           = prob.M.proj(X0,X2);
 
 %XX             = prob.M.retraction(X0,tang);

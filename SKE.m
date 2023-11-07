@@ -2,8 +2,8 @@ clc;clear;
 addpath("package\");
 dataroot = "data\KSE\";
 
-saveroot = "result\hsodm\SKE\"; 
-%saveroot = "result\manopt\SKE\";
+%saveroot = "result\hsodm\SKE"; 
+saveroot = "result\manopt\BFGS\SKE\";
 
 para.epislon   = 10^-5;%desired gradient accuracy
 para.Maxiter   = 5000;%Maximum iterations
@@ -33,12 +33,14 @@ for N = [1000,2000,5000]%,7000,10000
         prob.routine   = @routine;                  %power method routine
         
         opt.maxiter = 30000;
-        opt.tolgradnorm = para.epislon;
-        %[x, xcost, info, options] = trustregions(prob,[],opt); %manopt function
-        
-        Out = HSODM(prob,para); 
+
+        %opt.tolgradnorm = para.epislon;
+        [x, xcost, info, options] = rlbfgs(prob,[],opt); %manopt function
+        save(saveroot+name+"-result.mat",'x', 'xcost', 'info', 'options');
+
+        %Out = HSODM(prob,para); 
         %save(saveroot+name+"-result.mat",'Out');
-        %save(saveroot+name+"-result.mat",'x', 'xcost', 'info', 'options');
+        
     end
 end
 
