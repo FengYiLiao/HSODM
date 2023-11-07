@@ -34,9 +34,9 @@ prob.ehess     = @(X, U) 2*C*U;                         %euclidean hessian
 prob.routine   = @routine;                              %power method routine
 
 tic;
-Out = HSODM(prob,para);  %main function 
+%Out = HSODM(prob,para);  %main function 
 %[x, xcost, info, options] = trustregions(prob); %manopt function
-%[x, xcost, info, options] = conjugategradient(prob);
+[x, xcost, info, options] = steepestdescent(prob);
 toc;
 
 

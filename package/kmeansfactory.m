@@ -5,8 +5,8 @@ function M = kmeansfactory(n,r)
 %     function rgrad = egrad2rgrad(X,egrad)
 %         
 %     end
-
-
+    M.inner = @(x, d1, d2) d1(:)'*d2(:);
+    M.trnsp = @(X) X;
     M.proj  = @projection;
 
     function up = projection(X,W) 
@@ -19,13 +19,17 @@ function M = kmeansfactory(n,r)
 
     M.egrad2rgrad = M.proj; 
 
-    M.retraction  = @retraction;
+    M.retr  = @retraction;
 
 
-    function Y = retraction(X, U)
-        A  = X'*U;
+    function Y = retraction(X,U,t)
+        A  = t*X'*U;
         Ap = X*A*X';
-        B  = U*X'-X*U'-2*Ap;
+        B  = t*(U*X'-X*U')-2*Ap;
         Y  = expm(B)*expm(Ap)*X;
     end
+
+    M.norm    = @(x, d) norm(d(:));
+    M.lincomb = @matrixlincomb;
+    M.transp = @(x1, x2, d) M.proj(x2, d);
 end

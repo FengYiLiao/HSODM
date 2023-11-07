@@ -1,7 +1,7 @@
 clc;clear; close all;
 addpath("package\");
-addpath("C:\Users\SOC-LAB\FengYi\Solver\DRSOM\Spherical_alg\Kmeans");
-
+%addpath("C:\Users\SOC-LAB\FengYi\Solver\DRSOM\Spherical_alg\Kmeans");
+addpath("D:\UCSD\Research\Solvers\DRSOM\Spherical_alg\Kmeans");
 %saveroot = "result\hsodm"; 
 dataroot = "data\Kmeans\";
 load(dataroot+"ecoli.mat");
@@ -28,44 +28,42 @@ para.adp_delta = true;  %adaptively tuning delta or not
 
 
 prob.n         = height(M);
-prob.rank      = width(M);
+prob.rank      = 10;%width(M);
 Y              = M./max(abs(M));
 W              = -Y*Y'; 
 lambda         = 100;
 prob.M         = kmeansfactory(prob.n,prob.rank); %Create a mainfold
 
-X0             = randn(prob.n,prob.rank);
-X0             = Kmeans_retrac(X0,0,0);
+
 %prob.M.retraction()
 
 prob.cost      = @(X) cost(X,W,lambda);
 %prob.cost(X0)
-X2             = randn(prob.n,prob.rank);
-tang           = prob.M.proj(X0,X2);
+%X2             = randn(prob.n,prob.rank);
+%tang           = prob.M.proj(X0,X2);
 
-XX             = prob.M.retraction(X0,tang);
-XX'*XX
-prob.egrad     = @(X) egrad(X,L,invL);      %euclidean gradient
-prob.ehess     = @(X, U) ehess(X,L,invL,U); %euclidean hessian
+%XX             = prob.M.retraction(X0,tang);
+%XX'*XX
+prob.egrad     = @(X) egrad(X,W,lambda);      %euclidean gradient
+%prob.ehess     = @(X, U) ehess(X,L,invL,U); %euclidean hessian
 prob.routine   = @routine;                  %power method routine
 
 %% Random initialization
-R = randn(n,r);
-AA = R'*R;
-[P,V] = eig(full(AA));
-d = diag(V);
-d = sqrt(1./d);
-V = spdiags(d,0,r,r);
-X0 = R*(P*V*P');
+X0             = randn(prob.n,prob.rank);
+X0             = Kmeans_retrac(X0,0,0);
 para.X0 = X0;
+
+%prob.M.retr    = @Kmeans_retrac;%(X,U,t)
 
 tic;
 opt.maxiter = 30000;
 opt.tolgradnorm = para.epislon;
 
 %[x, xcost, info, options] = trustregions(prob,[],opt); %manopt function
-%[x, xcost, info, options] = steepestdescent(prob,[],opt);
-Out = HSODM(prob,para);  %main function 
+% [x, xcost, info, options] = steepestdescent(prob,X0,opt);
+% [x, xcost, info, options] = barzilaiborwein(prob,X0,opt);
+[x, xcost, info, options] = conjugategradient(prob,X0,opt);
+%Out = HSODM(prob,para);  %main function 
 toc;
 
 
@@ -90,11 +88,13 @@ function y = cost(X,W,lambda)
     %y = L(:).'*R(:);
 end
 
-function y = egrad(X,L,invL)
-    d = sum(X.*X,2);
+function y = egrad(X,W,lambda)
+    %d = sum(X.*X,2);
     %R = invL*d;
-    R = L\d;
-    y = L*X + R.*X;
+    %R = L\d;
+    nonpos                = X;
+    nonpos(nonpos>=0)     = 0;
+    y                     = 2*W*X + 2*lambda*nonpos;
 end
 
 function y = ehess(X,L,invL,V)
