@@ -46,6 +46,8 @@ prob.cost      = @(X) cost(X,W,lambda);
 %XX             = prob.M.retraction(X0,tang);
 %XX'*XX
 prob.egrad     = @(X) egrad(X,W,lambda);      %euclidean gradient
+%prob.M.
+
 %prob.ehess     = @(X, U) ehess(X,L,invL,U); %euclidean hessian
 prob.routine   = @routine;                  %power method routine
 
@@ -106,4 +108,8 @@ function y = ehess(X,L,invL,V)
     invLd  = L\d;
     invLd2 = L\(2*d2);
     y      = L*V+invLd.*V+invLd2.*X;
+end
+
+function y = ehess2rhess(X,W,lambda)
+
 end

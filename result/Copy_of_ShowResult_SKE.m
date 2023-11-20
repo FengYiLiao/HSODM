@@ -4,8 +4,8 @@ clc;clear;close all;
   
   %fprintf("  Name   |    RTR    |  HSODM-1   |  HSODM-10  |   HSODM-D2 \n")
   fprintf("  Name   |   HSODM   |   RTR  |   BFGS  |   BB  |   CG  \n")
- for N =2000%[1000,2000,5000]
-    for j = 20%[20,50]
+ for N =5000%[1000,2000,5000]
+    for j =50%[20,50]
     %name  = split(set{i},'.');
     name = "n"+num2str(N)+"r"+num2str(j);
     %name        = split(set{i},'.');

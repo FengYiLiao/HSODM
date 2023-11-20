@@ -15,10 +15,10 @@ para.beta      = 0.5;   %line search parameter: reduction
 para.gamma     = 2;     %line search parameter: a constant
 para.Threshold = 2;     %This is cap delta (trigangle) in the paper
 para.nu        = 0.45;
-para.delta     = 5;     %the button right constant (control eigenvalue)
+para.delta     = 0.01;     %the button right constant (control eigenvalue)
 para.eta       = 1;     %initial line search step size
 para.step      = 10;
-para.adp_delta = true;  %adaptively tuning delta or not
+para.adp_delta = false;  %adaptively tuning delta or not
 para.linesearch = false;
 para.L         = 2;   %adaptive parameter
 para.delta_min = 10^-3;
@@ -34,9 +34,9 @@ prob.ehess     = @(X, U) 2*C*U;                         %euclidean hessian
 prob.routine   = @routine;                              %power method routine
 
 tic;
-%Out = HSODM(prob,para);  %main function 
+Out = HSODM(prob,para);  %main function 
 %[x, xcost, info, options] = trustregions(prob); %manopt function
-[x, xcost, info, options] = steepestdescent(prob);
+%[x, xcost, info, options] = steepestdescent(prob);
 toc;
 
 
