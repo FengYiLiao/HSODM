@@ -73,7 +73,11 @@ function M = kmeansfactoryF(n,r)
     M.transp  = @(x1, x2, d) M.proj(x2, d);
     M.Hess    = @Hess;
     
-    function Y = Hess(X,V)
+    function Y = Hess(X,V,W)
+        Y = Hess1(X,V,W)+Hess2(X,V); 
+    end
+    
+    function Y = Hess2(X,V)
         n           = height(X);
         q           = width(X);
         e           = ones(n,1);
@@ -94,12 +98,37 @@ function M = kmeansfactoryF(n,r)
         norm_alpha  = norm(alpha);
         alpha       = alpha/norm(alpha);
         A           = X*(temp1+temp2-temp1-temp2);
-        B           = 2*(XVt+XVt')*pj*(Iq - alpha*alpha');
+        B           = 2*((XVt+XVt')*pj+X*temp1)*(Iq - alpha*alpha');
         C           = 2*(In-X*X')*pj*(2*(alpha*alpha'/(norm_alpha^(5/2)))*(temp3(:)'*V(:))-temp4/norm_alpha/norm_alpha);
-        Y           = A + B + C;
+        Y           = A - B + C;
         Y           = projection(X,Y);
     end
     
-    
+     function Y = Hess1(X,V,W)
+        n           = height(X);
+        q           = width(X);
+        e           = ones(n,1);
+        Iq          = eye(q);
+        In          = eye(n);
+        pj          = X;
+        idx         = X > 0;
+        %pj(idx)     = 0 ;
+%         gradpj      = ones(n,q);
+%         gradpj(idx) = 0;
+        %temp1       = X'*(gradpj.*V);
+        %temp2       = V'*pj; 
+        temp3       = e*e'*X;
+        temp4       = V'*temp3;
+        temp4       = temp4 + temp4';
+        %XVt         = X*V';%XV'
+        alpha       = X'*e;
+        norm_alpha  = norm(alpha);
+        alpha       = alpha/norm(alpha);
+        %A           = X*(temp1+temp2-temp1-temp2);
+        B           = 2*(X*X'*W*V+X*V'*W*X+V*X'*W*X)*(Iq - alpha*alpha');
+        C           = 2*(In-X*X')*W*X*(2*(alpha*alpha'/(norm_alpha^(5/2)))*(temp3(:)'*V(:))-temp4/norm_alpha/norm_alpha);
+        Y           =  -B + C;
+        Y           = projection(X,Y);
+    end
     
 end

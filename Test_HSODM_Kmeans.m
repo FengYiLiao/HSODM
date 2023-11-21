@@ -31,7 +31,7 @@ prob.n         = height(M);
 prob.rank      = 10;%width(M);
 Y              = M./max(abs(M));
 W              = -Y*Y'; 
-lambda         = 100;
+lambda         = 1;
 %prob.M         = Kmeansfactory(prob.n,prob.rank); %Create a mainfold
 prob.M         = kmeansfactoryF(prob.n,prob.rank); %Create a mainfold
 
@@ -61,13 +61,15 @@ prob.egrad     = @(X) egrad(X,W,lambda);      %euclidean gradient
 %prob.M.
 
 
-V  = ones(prob.n,prob.rank);
-hess_M = prob.M.Hess(X0,V);   
+V      = ones(prob.n,prob.rank);
+V      = prob.M.proj(X0,V);
+hess_M = prob.M.Hess(X0,V,W);   
 
-t   = 1;
-xt  = prob.M.retr(X0,V,t);
-hess_F = (prob.M.proj(X0,prob.M.egrad2rgrad(xt,prob.egrad(xt))) - prob.M.egrad2rgrad(X0,prob.egrad(X0)))/t;
-error = norm(hess_M - hess_F,'F')
+t      = 0.001;
+Xt     = prob.M.retr(X0,V,t);
+
+hess_F = (prob.M.proj(X0,prob.M.egrad2rgrad(Xt,prob.egrad(Xt))) - prob.M.egrad2rgrad(X0,prob.egrad(X0)))/t;
+error  = norm(hess_M - hess_F,'F')
 
 
 %prob.ehess     = @(X, U) ehess(X,L,invL,U); %euclidean hessian

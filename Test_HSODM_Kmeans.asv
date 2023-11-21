@@ -64,10 +64,12 @@ prob.egrad     = @(X) egrad(X,W,lambda);      %euclidean gradient
 V  = ones(prob.n,prob.rank);
 hess_M = prob.M.Hess(X0,V);   
 
-t   = 0.0001;
+t   = 0.00001;
 xt  = prob.M.retr(X0,V,t);
-hess_F = (prob.M.proj(prob.M.egrad2grad(xt,prob.egrad(xt))) - prob.M.egrad2grad(X0,prob.egrad(X0)))/t;
-error = norm(hess_F - hess_F,'F')
+xt'*xt
+xt*xt'*
+hess_F = (prob.M.proj(X0,prob.M.egrad2rgrad(xt,prob.egrad(xt))) - prob.M.egrad2rgrad(X0,prob.egrad(X0)))/t;
+error = norm(hess_M - hess_F,'F')
 
 
 %prob.ehess     = @(X, U) ehess(X,L,invL,U); %euclidean hessian
