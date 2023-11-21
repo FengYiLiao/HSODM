@@ -41,14 +41,20 @@ prob.M         = kmeansfactoryF(prob.n,prob.rank); %Create a mainfold
 
 prob.cost      = @(X) cost(X,W,lambda);
 
-% R = randn(prob.n,prob.rank);
-% AA = R'*R;
-% [P,V] = eig(full(AA));
-% d = diag(V);
-% d = sqrt(1./d);
-% V = spdiags(d,0,prob.rank,prob.rank);
-% X0 = R*(P*V*P');
-% Y = prob.M.projFv(X0);
+R = randn(prob.n,prob.rank);
+AA = R'*R;
+[P,V] = eig(full(AA));
+d = diag(V);
+d = sqrt(1./d);
+V = spdiags(d,0,prob.rank,prob.rank);
+X0 = R*(P*V*P');
+X0 = prob.M.projFv(X0);
+
+
+V  = ones(prob.n,prob.rank);
+prob.M.Hess(X0,V)
+
+
 
 % Y'*Y
 % Y*Y'*ones(prob.n,1)

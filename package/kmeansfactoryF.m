@@ -65,12 +65,30 @@ function M = kmeansfactoryF(n,r)
 
     M.norm    = @(x, d) norm(d(:));
     M.lincomb = @matrixlincomb;
-    M.transp = @(x1, x2, d) M.proj(x2, d);
+    M.transp  = @(x1, x2, d) M.proj(x2, d);
+    M.Hess    = @Hess;
     
-    
-    function Y = Hess(X,U)
-        
-        
+    function Y = Hess(X,V)
+        n           = height(X);
+        q           = width(X);
+        e           = ones(n,1);
+        I           = eye(q);
+        pj          = X;
+        idx         = X <= 0;
+        pj(idx)     = 0 ;
+        gradpj      = zeros(n,q);
+        gradpj(idx) = 1;
+        temp1       = X'*(gradpj.*V);
+        temp2       = V'*pj; 
+        temp3       = e*e'*X;
+        alpha       = X'*e;
+        norm_alpha  = norm(alpha);
+        alpha       = alpha/norm(alpha);
+        A           = X*(temp1+temp2-temp1-temp2);
+        B           = 2*(X*V'+V*X')*pj*(I - alpha*alpha');
+        C           = 2*(I-X*X')*pj*((alpha*alpha'/sqrt(norm_alpha)*2)*temp3(:)'*V(:)-X*e*e'*V/norm_alpha/norm_alpha);
+        Y           = A + B + C;
+        Y           = projection(X,Y);
     end
     
     
