@@ -20,17 +20,17 @@ function M = kmeansfactoryF(n,r)
 %         up    = W - 2*X*Sigma - C*X;
 %     end
 
-    function up = projection(X,W)
+    function up = projection(X,Z)
         %projection to the tangent space
-        n     = height(W);
-        q     = width(W);
-        C     = X'*W; %avoid duplicated computations
+        n     = height(Z);
+        q     = width(Z);
+        temp  = X'*Z; %avoid duplicated computations
         Iq    = eye(q);
         In    = eye(n);
         e     = ones(n,1);
         alpha = X'*e;
         alpha = alpha/norm(alpha);
-        up    = 0.5*X*(C-C')+(In-X*X')*W*(Iq-alpha*alpha');
+        up    = 0.5*X*(temp-temp')+(In-X*X')*Z*(Iq-alpha*alpha');
     end
 
 
@@ -58,7 +58,7 @@ function M = kmeansfactoryF(n,r)
         I     = eye(q);
         alpha = X'*e;
         alpha = alpha/norm(alpha);
-        Y     = e*alpha'/(norm(e))+ X *(I - alpha*alpha');
+        Y     = e*alpha'/norm(e)+ X *(I - alpha*alpha');
     end
 
 
@@ -74,7 +74,7 @@ function M = kmeansfactoryF(n,r)
     M.Hess    = @Hess;
     
     function Y = Hess(X,V,W)
-        Y = Hess1(X,V,W)+Hess2(X,V); 
+        Y = -Hess1(X,V,W)+Hess2(X,V); 
     end
     
     function Y = Hess2(X,V)
@@ -99,7 +99,7 @@ function M = kmeansfactoryF(n,r)
         alpha       = alpha/norm(alpha);
         A           = X*(temp1+temp2-temp1-temp2);
         B           = 2*((XVt+XVt')*pj+X*temp1)*(Iq - alpha*alpha');
-        C           = 2*(In-X*X')*pj*(2*(alpha*alpha'/(norm_alpha^(5/2)))*(temp3(:)'*V(:))-temp4/norm_alpha/norm_alpha);
+        C           = 2*(In-X*X')*pj*(2*(alpha*alpha'/(norm_alpha^(4)))*(temp3(:)'*V(:))-temp4/norm_alpha/norm_alpha);
         Y           = A - B + C;
         Y           = projection(X,Y);
     end
@@ -110,9 +110,9 @@ function M = kmeansfactoryF(n,r)
         e           = ones(n,1);
         Iq          = eye(q);
         In          = eye(n);
-        pj          = X;
-        idx         = X > 0;
-        %pj(idx)     = 0 ;
+%         pj          = X;
+%         idx         = X > 0;
+%         pj(idx)     = 0 ;
 %         gradpj      = ones(n,q);
 %         gradpj(idx) = 0;
         %temp1       = X'*(gradpj.*V);
@@ -126,8 +126,8 @@ function M = kmeansfactoryF(n,r)
         alpha       = alpha/norm(alpha);
         %A           = X*(temp1+temp2-temp1-temp2);
         B           = 2*(X*X'*W*V+X*V'*W*X+V*X'*W*X)*(Iq - alpha*alpha');
-        C           = 2*(In-X*X')*W*X*(2*(alpha*alpha'/(norm_alpha^(5/2)))*(temp3(:)'*V(:))-temp4/norm_alpha/norm_alpha);
-        Y           =  -B + C;
+        C           = 2*(In-X*X')*W*X*(2*(alpha*alpha'/(norm_alpha^(4)))*(temp3(:)'*V(:))-temp4/norm_alpha/norm_alpha);
+        Y           = -B + C;
         Y           = projection(X,Y);
     end
     
