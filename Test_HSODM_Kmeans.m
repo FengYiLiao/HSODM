@@ -51,9 +51,6 @@ X0 = R*(P*V*P');
 X0 = prob.M.projFv(X0);
 
 
-
-
-
 % Y'*Y
 % Y*Y'*ones(prob.n,1)
 
@@ -65,7 +62,7 @@ V      = ones(prob.n,prob.rank);
 V      = prob.M.proj(X0,V);
 hess_M = prob.M.Hess(X0,V,W);   
 
-t      = 0.001;
+t      = 10^(-6);
 Xt     = prob.M.retr(X0,V,t);
 
 hess_F = (prob.M.proj(X0,prob.M.egrad2rgrad(Xt,prob.egrad(Xt))) - prob.M.egrad2rgrad(X0,prob.egrad(X0)))/t;
