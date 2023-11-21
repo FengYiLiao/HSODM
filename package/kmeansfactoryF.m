@@ -73,8 +73,8 @@ function M = kmeansfactoryF(n,r)
     M.transp  = @(x1, x2, d) M.proj(x2, d);
     M.Hess    = @Hess;
     
-    function Y = Hess(X,V,W)
-        Y = -Hess1(X,V,W)+Hess2(X,V); 
+    function Y = Hess(X,V,W,lambda)
+        Y = -Hess1(X,V,W)+lambda*Hess2(X,V); 
     end
     
     function Y = Hess2(X,V)

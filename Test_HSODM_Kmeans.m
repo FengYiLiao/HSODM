@@ -31,7 +31,9 @@ prob.n         = height(M);
 prob.rank      = 10;%width(M);
 Y              = M./max(abs(M));
 W              = -Y*Y'; 
-lambda         = 1;
+lambda         = 100;
+prob.W         = W;
+prob.lambda    = lambda;
 %prob.M         = Kmeansfactory(prob.n,prob.rank); %Create a mainfold
 prob.M         = kmeansfactoryF(prob.n,prob.rank); %Create a mainfold
 
@@ -39,42 +41,35 @@ prob.M         = kmeansfactoryF(prob.n,prob.rank); %Create a mainfold
 
 %prob.M.retraction()
 
-prob.cost      = @(X) cost(X,W,lambda);
+prob.cost  = @(X) cost(X,W,lambda);
 
-R = randn(prob.n,prob.rank);
-AA = R'*R;
-[P,V] = eig(full(AA));
-d = diag(V);
-d = sqrt(1./d);
-V = spdiags(d,0,prob.rank,prob.rank);
-X0 = R*(P*V*P');
-X0 = prob.M.projFv(X0);
+R          = randn(prob.n,prob.rank);
+AA         = R'*R;
+[P,V]      = eig(full(AA));
+d          = diag(V);
+d          = sqrt(1./d);
+V          = spdiags(d,0,prob.rank,prob.rank);
+X0         = R*(P*V*P');
+X0         = prob.M.projFv(X0);
 
-
-% Y'*Y
-% Y*Y'*ones(prob.n,1)
 
 prob.egrad     = @(X) egrad(X,W,lambda);      %euclidean gradient
-%prob.M.
 
-
-V      = ones(prob.n,prob.rank);
-V      = prob.M.proj(X0,V);
-hess_M = prob.M.Hess(X0,V,W);   
-
-t      = 10^(-6);
-Xt     = prob.M.retr(X0,V,t);
-
-hess_F = (prob.M.proj(X0,prob.M.egrad2rgrad(Xt,prob.egrad(Xt))) - prob.M.egrad2rgrad(X0,prob.egrad(X0)))/t;
-error  = norm(hess_M - hess_F,'F')
-
+%test Hessain
+% V      = ones(prob.n,prob.rank);
+% V      = prob.M.proj(X0,V);
+% hess_M = prob.M.Hess(X0,V,W,lambda);   
+% t      = 10^(-12);
+% Xt     = prob.M.retr(X0,V,t);
+% hess_F = (prob.M.proj(X0,prob.M.egrad2rgrad(Xt,prob.egrad(Xt))) - prob.M.egrad2rgrad(X0,prob.egrad(X0)))/t;
+% error  = norm(hess_M - hess_F,'F')
 
 %prob.ehess     = @(X, U) ehess(X,L,invL,U); %euclidean hessian
 prob.routine   = @routine;                  %power method routine
 
 %% Random initialization
-X0             = randn(prob.n,prob.rank);
-X0             = Kmeans_retrac(X0,0,0);
+% X0             = randn(prob.n,prob.rank);
+% X0             = Kmeans_retrac(X0,0,0);
 para.X0 = X0;
 
 %prob.M.retr    = @Kmeans_retrac;%(X,U,t)
@@ -86,8 +81,8 @@ opt.tolgradnorm = para.epislon;
 %[x, xcost, info, options] = trustregions(prob,[],opt); %manopt function
 % [x, xcost, info, options] = steepestdescent(prob,X0,opt);
 % [x, xcost, info, options] = barzilaiborwein(prob,X0,opt);
-[x, xcost, info, options] = conjugategradient(prob,X0,opt);
-%Out = HSODM(prob,para);  %main function 
+%[x, xcost, info, options] = conjugategradient(prob,X0,opt);
+Out = HSODM(prob,para);  %main function 
 toc;
 
 
@@ -96,7 +91,9 @@ function y = routine(X,Xk,prob,para) %power method routine  %Xk is current itera
     gk       = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
     x1       = reshape(X(1:end-1),prob.n,prob.rank);
     x2       = X(end);
-    y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+x2*gk,[],1);
+%     y = [reshape(prob.M.ehess2rhess(Xk,prob.egrad(Xk),prob.ehess(Xk,x1),x1)+x2*gk,[],1);
+%         gk(:).'*x1(:) - para.delta*x2];
+    y = [reshape(prob.M.Hess(Xk,x1,prob.W,prob.lambda)+x2*gk,[],1);
         gk(:).'*x1(:) - para.delta*x2];
 end
 
@@ -106,8 +103,8 @@ function y = cost(X,W,lambda)
     %d           = sum(X.*X,2);
 %     y = 0.5*(X(:).'*R(:)) + (d'*invL*d)/4;
     PX          = X; %projected X 
-    nonpos      = PX(PX < 0);
-    y           = (X(:).'*R(:)) +lambda *norm(nonpos)^2;
+    nonpos      = PX(PX <= 0);
+    y           = -(X(:).'*R(:)) + lambda*norm(nonpos)^2;
     %R = X'*X;
     %y = L(:).'*R(:);
 end
@@ -117,20 +114,7 @@ function y = egrad(X,W,lambda)
     %R = invL*d;
     %R = L\d;
     nonpos                = X;
-    nonpos(nonpos>0)     = 0;
-    y                     = 2*W*X + 2*lambda*nonpos;
+    nonpos(nonpos>0)      = 0;
+    y                     = -2*W*X + 2*lambda*nonpos;
 end
 
-function y = ehess(X,L,invL,V)
-    d  = sum(X.*X,2);
-    d2 = sum(X.*V,2);
-%     invLd  = invL*d;
-%     invLd2 = invL*(2*d2);
-    invLd  = L\d;
-    invLd2 = L\(2*d2);
-    y      = L*V+invLd.*V+invLd2.*X;
-end
-
-% function y = ehess2rhess(X,W,lambda)
-% 
-% end
