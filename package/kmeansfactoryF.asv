@@ -22,6 +22,7 @@ function M = kmeansfactoryF(n,r)
 
     function up = projection(X,W)
         n     = height(W);
+        q     = width(W);
         C     = X'*W; %avoid duplicated computations
         I     = eye(n);
         e     = ones(n,1);
@@ -36,27 +37,12 @@ function M = kmeansfactoryF(n,r)
     M.retr  = @retraction;
 
 
-%     function Y = retraction(X,U,t)
-%         A  = t*X'*U;
-%         Ap = X*A*X';
-%         B  = t*(U*X'-X*U')-2*Ap;
-%         Y  = expm(B)*expm(Ap)*X;
-%     end
-
-    function Y = projectionFv(X)
-        n     = height(W);
-        e     = ones(n,1);
-        alpha = X'*e;
-        alpha = alpha/norm(alpha);
-        Y     = e*alpha'/(norm(e))+ X *(I - alpha*alpha');
-    end
-
-
     function Y = retraction(X,U,t)
-       temp = M.St.retr(X,t*U);
-       Y    = projectionFv(temp);
+        A  = t*X'*U;
+        Ap = X*A*X';
+        B  = t*(U*X'-X*U')-2*Ap;
+        Y  = expm(B)*expm(Ap)*X;
     end
-
 
     M.norm    = @(x, d) norm(d(:));
     M.lincomb = @matrixlincomb;
