@@ -32,19 +32,27 @@ prob.rank      = 10;%width(M);
 Y              = M./max(abs(M));
 W              = -Y*Y'; 
 lambda         = 100;
-prob.M         = Kmeansfactory(prob.n,prob.rank); %Create a mainfold
+%prob.M         = Kmeansfactory(prob.n,prob.rank); %Create a mainfold
+prob.M         = kmeansfactoryF(prob.n,prob.rank); %Create a mainfold
+
 
 
 %prob.M.retraction()
 
 prob.cost      = @(X) cost(X,W,lambda);
 
-% X0             = randn(prob.n,prob.rank);
-% prob.cost(X0)
-%tang           = prob.M.proj(X0,X2);
+% R = randn(prob.n,prob.rank);
+% AA = R'*R;
+% [P,V] = eig(full(AA));
+% d = diag(V);
+% d = sqrt(1./d);
+% V = spdiags(d,0,prob.rank,prob.rank);
+% X0 = R*(P*V*P');
+% Y = prob.M.projFv(X0);
 
-%XX             = prob.M.retraction(X0,tang);
-%XX'*XX
+% Y'*Y
+% Y*Y'*ones(prob.n,1)
+
 prob.egrad     = @(X) egrad(X,W,lambda);      %euclidean gradient
 %prob.M.
 
