@@ -14,23 +14,23 @@ load(dataroot+"ecoli.mat");
 % L = full(L);
 % r = 10;
 
-para.epislon   = 10^-6; %desired gradient accuracy
-para.Maxiter   = 5000;  %Maximum iterations
-para.beta      = 0.75;  %line search parameter: reduction
-para.gamma     = 2;     %line search parameter: a constant
-para.Threshold = 2;     %This is cap delta (trigangle) in the paper
-para.nu        = 0.45;
-para.delta     = 2;     %the button right constant (control eigenvalue)
-para.eta       = 1;     %initial line search step size
-para.step      = 1;
-para.adp_delta = true;  %adaptively tuning delta or not
-
+para.epislon    = 10^-5; %desired gradient accuracy
+para.Maxiter    = 500;  %Maximum iterations
+para.beta       = 0.75;  %line search parameter: reduction
+para.gamma      = 2;     %line search parameter: a constant
+para.Threshold  = 2;     %This is cap delta (trigangle) in the paper
+para.nu         = 0.45;
+para.delta      = 0.01;     %the button right constant (control eigenvalue)
+para.eta        = 1;     %initial line search step size
+para.step       = 1;
+para.adp_delta  = true;  %adaptively tuning delta or not
+para.linesearch = true;
 
 
 prob.n         = height(M);
-prob.rank      = 10;%width(M);
+prob.rank      = 5;%width(M);
 Y              = M./max(abs(M));
-W              = -Y*Y'; 
+W              = Y*Y'; 
 lambda         = 100;
 prob.W         = W;
 prob.lambda    = lambda;
@@ -78,11 +78,13 @@ tic;
 opt.maxiter = 30000;
 opt.tolgradnorm = para.epislon;
 
-%[x, xcost, info, options] = trustregions(prob,[],opt); %manopt function
+%[x, xcost, info, options] = trustregions(prob,X0,opt); %manopt function
 % [x, xcost, info, options] = steepestdescent(prob,X0,opt);
 % [x, xcost, info, options] = barzilaiborwein(prob,X0,opt);
 %[x, xcost, info, options] = conjugategradient(prob,X0,opt);
-Out = HSODM(prob,para);  %main function 
+[x, xcost, info, options] = rlbfgs(prob,X0,opt);
+
+%Out = HSODM(prob,para);  %main function 
 toc;
 
 

@@ -24,7 +24,7 @@ function Out = HSODM(prob,para)
         para.L = 2;%default value
     end
 
-    if ~isfield(para,"para.")
+    if ~isfield(para,"linesearch")
         para.linesearch = true;
     end
 
