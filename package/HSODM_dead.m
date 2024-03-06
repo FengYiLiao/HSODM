@@ -1,6 +1,7 @@
 function Out = HSODM_2(prob,option)
     %HSODM stops when Riemannian gradient reaches desired accuracy
     %This script considers the homogenous second-order descent framework
+    %This code is not working!!!!!!!!!!!!
     rng("default");
     
     obj  = [];

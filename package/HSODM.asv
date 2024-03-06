@@ -40,16 +40,15 @@ function Out = HSODM(prob,para)
 
         %starting vector %This affects the convergence a lot!! %we start from the tangent space!
         opts.v0 = [reshape(gk,[],1);rand(1)];            
-        %[v,~]   = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
-        [v,~]   = eigs(Afun,prob.numvar+1,1,'smallestreal',opts);
+        [v,~]   = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
 
         %compensate computational error
         v       = real(v); 
 
-        [vk,tk] = prob.vec2mani(v,prob);
+        [vk,tk] = 
 
-%         vk      = reshape(v(1:end-1),prob.n,prob.rank);%vector on the tangent space
-%         tk      = v(end);                              %the last element is scalar t
+        vk      = reshape(v(1:end-1),prob.n,prob.rank);%vector on the tangent space
+        tk      = v(end);                              %the last element is scalar t
 
         %some critetion 
         if abs(tk) >= para.nu
