@@ -1,6 +1,6 @@
 function Out = HSODM(prob,para)
     %HSODM stops when Riemannian gradient reaches desired accuracy
-    rng("default");
+    rng(2019);
     
     obj  = [];
     Grad = [];
@@ -33,7 +33,15 @@ function Out = HSODM(prob,para)
     rng(1);
     for iter = 1:para.Maxiter
         %Euclidean gradient to Riemannian gradient %As the initial guess for the power method
-        gk      = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
+        %gk      = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
+
+        % Create a store database and get a key for the current x
+%          storedb = StoreDB(2);
+%          key = storedb.getNewKey();
+       
+        gk = getGradient(prob, Xk);
+        %gk      = prob.M.egrad2rgrad(Xk,prob.egrad(Xk,storedb),storedb,key); 
+
 
         %Define a routine for power method
         Afun    = @(x) prob.routine(x,Xk,prob,para);     
@@ -44,9 +52,10 @@ function Out = HSODM(prob,para)
         [v,~]   = eigs(Afun,prob.numvar+1,1,'smallestreal',opts);
 
         %compensate computational error
-        v       = real(v); 
+        %v       = real(v); 
 
         [vk,tk] = prob.vec2mani(v,prob);
+        tk      = tk/para.ck;
 
 %         vk      = reshape(v(1:end-1),prob.n,prob.rank);%vector on the tangent space
 %         tk      = v(end);                              %the last element is scalar t
@@ -57,20 +66,39 @@ function Out = HSODM(prob,para)
         else
             dk  = sign(-prob.M.inner(Xk, gk, vk))*vk;
         end
+       
         
+        normdk = norm(dk,'fro');
+
         %line search for step size
         if para.linesearch
             eta    = lineserach(Xk,dk,prob,para);
         else
-            eta    = 1;
+            LH = 0.0001;
+            if para.delta/(LH*para.ck^2) <= normdk
+                eta = (2*para.delta)/(LH*para.ck^2*normdk^2);
+            else
+                eta = 2;
+            end
+%             eta    =2;
         end
         
         
         %retraction 
         Xk     = prob.M.retr(Xk,dk,eta);
-        normgk = norm(prob.M.egrad2rgrad(Xk,prob.egrad(Xk)),'fro');%euclidean gradient to Riemannian gradient
-        obj    = [obj;prob.cost(Xk)];
+        
+        %normgk = norm(prob.M.egrad2rgrad(Xk,prob.egrad(Xk)),'fro');%euclidean gradient to Riemannian gradient
+        
+        [fk,gk]=getCostGrad(prob, Xk);
+        normgk  = norm(gk,'fro');
+
+
+%         obj    = [obj;prob.cost(Xk)];
+%         Grad   = [Grad;normgk];
+
+        obj    = [obj;fk];
         Grad   = [Grad;normgk];
+
         if normgk<para.epislon
             stop = "rgrad reaches desired accuracy!";
             break;
