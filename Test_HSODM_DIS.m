@@ -1,47 +1,52 @@
 clc;clear;
 addpath("package\");
 addpath("data\");
-cd data\
+%cd data\
 % set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','mcp250-1.mat','mcp250-2.mat','mcp250-3.mat','mcp250-4.mat',...
 %       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 
-idx   = 1;
+idx   = 2;
 switch idx 
     case 1
        prob = dominant_invariant_subspace_problem([],  512, 12);
        prob.n         = 512;
        prob.rank      = 12;
-       prob.numvar    = prob.n*prob.rank;
+       prob.Tolvar    = prob.n*prob.rank;
        prob.vec2mani  = @vec2mani;
     case 2
        prob             = truncated_svd_problem([], 168, 240, 20);
        prob.vec2mani    = @(v,prob)  vec2mani(v,prob,168, 240, 20);
-       prob.numvar      = 168*20+240*50;
-       para.nummanifold = 2;
+       prob.mani2vec    = @mani2vec;
+       prob.Tolvar      = 168*20+240*20;
+       prob.nummanifold = 2;
+       prob.dim{1}      = [168;20];
+       prob.dim{2}      = [240;20];
+       prob.numvar{1}   = prob.dim{1}(1)*prob.dim{1}(2);
+       prob.numvar{2}   = prob.dim{2}(1)*prob.dim{2}(2);
        %para.X0        = prob.x0;
     case 3
        prob = lrmc_grassmann(2000, 5000, 10, 4);
        prob.n         = 2000;
        prob.rank      = 10;
-       prob.numvar    = prob.n*prob.rank;
+       prob.Tolvar    = prob.n*prob.rank;
        prob.vec2mani  = @vec2mani;
     case 4
        prob = maxcut(22);
        prob.n         = 2000;
        prob.rank      = 64;
-       prob.numvar    = prob.n*prob.rank;
+       prob.Tolvar    = prob.n*prob.rank;
        prob.vec2mani  = @vec2mani;
     case 5
        prob             = rotation_synchronization(3, 50, .75);
        prob.vec2mani    = @(v,prob) vec2mani(v,prob,50);
-       prob.numvar      = 9*50;
-       para.nummanifold = 50;
-       para.X0          = prob.x0;
+       prob.Tolvar      = 9*50;
+       prob.nummanifold = 50;
+       prob.X0          = prob.x0;
     case 6
-       prob = shapefit_leastsquares(500, 3);
+       prob           = shapefit_leastsquares(500, 3);
        prob.n         = 3;
        prob.rank      = 500;
-       prob.numvar    = prob.n*prob.rank;
+       prob.Tolvar    = prob.n*prob.rank;
        prob.vec2mani  = @vec2mani;
 end
 
@@ -85,7 +90,7 @@ para.ck         = 1;
 % prob.cost      = @(X) cost(X,C);
 % prob.egrad     = @(X) 2*C*X;                            %euclidean gradient
 % prob.ehess     = @(X, U) 2*C*U;                         %euclidean hessian
-%prob.numvar    = prob.n*prob.rank;
+%prob.Tolvar    = prob.n*prob.rank;
 prob.routine   = @routine;                              %power method routine
 
 
@@ -127,14 +132,20 @@ function y = routine(x,Xk,prob,para) %power method routine  %Xk is current itera
 
     %Hk = getHessian(prob, Xk,x1);
     Hk = getHessian(prob, Xk,v,prob.storedb,newkey);
-
+    vec_Hk = prob.mani2vec(Hk,prob);
+    vec_gk = prob.mani2vec(gk,prob);
     %Hk = getHessianFD(prob, Xk,x1);
     if para.ck ~= 1
-        y = [reshape(Hk+t*gk/para.ck,[],1);
-            gk(:).'*v(:)/para.ck - para.delta*t/(para.ck^2)];
+%         y = [reshape(Hk+t*gk/para.ck,[],1);
+%                 gk(:).'*v(:)/para.ck - para.delta*t/(para.ck^2)];
+        y = [vec_Hk+t*vec_gk/para.ck;
+            prob.M.inner(Xk,gk,v)/para.ck - para.delta*t/(para.ck^2)];
     else
-        y = [reshape(Hk+t*gk,[],1);
-            gk(:).'*v(:) - para.delta*t];
+%         y = [reshape(Hk+t*gk,[],1);
+%             gk(:).'*v(:) - para.delta*t];
+        
+        y = [vec_Hk+t*vec_gk;
+            prob.M.inner(Xk,gk,v) - para.delta*t];
     end
 end
 
@@ -156,10 +167,23 @@ function [vk,tk] = vec2mani(v,prob,m,n,p)
         tk      = v(end);                              %the last element is scalar t
     elseif nargin == 5
         vk.U    = reshape(v(1:m*p),m,p);
-        vk.V    = reshape(v(m*p+1:end),n,p);
+        vk.V    = reshape(v(m*p+1:end-1),n,p);
+        tk      = v(end);
     end
 end
 
+
+
+function v = mani2vec(gk,prob)
+    %Reture the gradient into vector form
+    %This part is needed for the power method
+    
+    v     = zeros(prob.Tolvar,1);
+    start = 1;
+    v(start:start+prob.numvar{1}-1) = reshape(gk.U,[],1);
+    start = start + prob.numvar{1};
+    v(start:start+prob.numvar{2}-1) = reshape(gk.V,[],1);
+end
 
 
 
