@@ -28,6 +28,10 @@ function Out = HSODM(prob,para)
         para.linesearch = true;
     end
 
+    if ~isfield(para,"linesearch")
+        para.nummanifold = 1;
+    end
+
     stop = "";
     fprintf("iter  |   obj  |  rgrad  |   eta   |   delta \n");
     rng(1);
@@ -51,7 +55,7 @@ function Out = HSODM(prob,para)
 
         %starting vector %This affects the convergence a lot!! %we start from the tangent space!
         opts.v0 = [reshape(gk,[],1);rand(1)];
-        opts.p  = 20;
+%        opts.p  = 20;
 %         opts.tol = 1e-3;
 %         opts.maxit = 10;
         %[v,~]   = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
@@ -66,7 +70,7 @@ function Out = HSODM(prob,para)
 %         vk      = reshape(v(1:end-1),prob.n,prob.rank);%vector on the tangent space
 %         tk      = v(end);                              %the last element is scalar t
 
-        %some critetion 
+        %some critetion (Dead)
         if abs(tk) >= para.nu
             dk  = vk/tk;
         else
