@@ -31,15 +31,18 @@ function Out = HSODM(prob,para)
     stop = "";
     fprintf("iter  |   obj  |  rgrad  |   eta   |   delta \n");
     rng(1);
+    prob.storedb = StoreDB(2);
+    key = prob.storedb.getNewKey();
+
     for iter = 1:para.Maxiter
         %Euclidean gradient to Riemannian gradient %As the initial guess for the power method
         %gk      = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
 
-        % Create a store database and get a key for the current x
-%          storedb = StoreDB(2);
-%          key = storedb.getNewKey();
+        %Create a store database and get a key for the current x
+
        
-        gk = getGradient(prob, Xk);
+        
+        gk = getGradient(prob, Xk,prob.storedb,key);
         %gk      = prob.M.egrad2rgrad(Xk,prob.egrad(Xk,storedb),storedb,key); 
 
 
@@ -47,7 +50,10 @@ function Out = HSODM(prob,para)
         Afun    = @(x) prob.routine(x,Xk,prob,para);     
 
         %starting vector %This affects the convergence a lot!! %we start from the tangent space!
-        opts.v0 = [reshape(gk,[],1);rand(1)];            
+        opts.v0 = [reshape(gk,[],1);rand(1)];
+        opts.p  = 20;
+%         opts.tol = 1e-3;
+%         opts.maxit = 10;
         %[v,~]   = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
         [v,~]   = eigs(Afun,prob.numvar+1,1,'smallestreal',opts);
 
@@ -78,7 +84,7 @@ function Out = HSODM(prob,para)
             if para.delta/(LH*para.ck^2) <= normdk
                 eta = (2*para.delta)/(LH*para.ck^2*normdk^2);
             else
-                eta = 2;
+                eta = 1;
             end
 %             eta    =2;
         end
@@ -89,7 +95,12 @@ function Out = HSODM(prob,para)
         
         %normgk = norm(prob.M.egrad2rgrad(Xk,prob.egrad(Xk)),'fro');%euclidean gradient to Riemannian gradient
         
-        [fk,gk]=getCostGrad(prob, Xk);
+%         %Create a store database and get a key for the current x
+%         storedb = StoreDB(2);
+%         key = storedb.getNewKey();
+
+        newkey = prob.storedb.getNewKey();
+        [fk,gk]=getCostGrad(prob, Xk,prob.storedb,newkey);
         normgk  = norm(gk,'fro');
 
 
@@ -108,13 +119,14 @@ function Out = HSODM(prob,para)
         end
 
         %adaptively change delta
-        if para.adp_delta
+        if para.adp_delta & normgk <=1
 %             if normgk <=10^-2
 %                 para.delta = 2;
 %             else
 %                 para.delta = max(para.delta_min,normgk^(1/2));
 %             end
-             para.delta =normgk^(1/1.5);
+             %para.delta =normgk^(1/1.5);
+             para.delta = sqrt(para.epislon);
         end
     end
     if iter == para.Maxiter 
@@ -134,8 +146,13 @@ function y = lineserach(X,dk,prob,para)
     etak = para.eta;
     Costant = para.gamma/6*norm(dk,'fro')^3*etak^3;
     iter = 1;
+    cost1 = getCost(prob, X);
     while iter <= 30
-        Dk= prob.cost(X) - prob.cost(prob.M.retr(X,dk,etak));
+        %test = canGetCost(prob,Xk);
+        
+        cost2 = getCost(prob, prob.M.retr(X,dk,etak));
+        %Dk= prob.cost(X) - prob.cost(prob.M.retr(X,dk,etak));
+        Dk= cost1 - cost2;
         if Dk >= Costant*etak^3
             break;
         else
