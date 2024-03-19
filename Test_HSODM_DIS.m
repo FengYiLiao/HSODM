@@ -5,7 +5,7 @@ addpath("data\");
 % set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','mcp250-1.mat','mcp250-2.mat','mcp250-3.mat','mcp250-4.mat',...
 %       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 
-idx   = 2;
+idx   = 6;
 switch idx 
     case 1
        prob = dominant_invariant_subspace_problem([],  512, 12);
@@ -25,29 +25,29 @@ switch idx
        prob.numvar{2}   = prob.dim{2}(1)*prob.dim{2}(2);
        %para.X0        = prob.x0;
     case 3
-       prob = lrmc_grassmann(2000, 5000, 10, 4);
-       prob.n         = 2000;
-       prob.rank      = 10;
-       prob.Tolvar    = prob.n*prob.rank;
-       prob.vec2mani  = @vec2mani;
+       prob             = lrmc_grassmann(2000, 5000, 10, 4);
+       prob.n           = 2000;
+       prob.rank        = 10;
+       prob.Tolvar      = prob.n*prob.rank;
+       prob.vec2mani    = @vec2mani;
     case 4
-       prob = maxcut(22);
-       prob.n         = 2000;
-       prob.rank      = 64;
-       prob.Tolvar    = prob.n*prob.rank;
-       prob.vec2mani  = @vec2mani;
+       prob             = maxcut(22);
+       prob.n           = 2000;
+       prob.rank        = 64;
+       prob.Tolvar      = prob.n*prob.rank;
+       prob.vec2mani    = @vec2mani;
     case 5
        prob             = rotation_synchronization(3, 50, .75);
        prob.vec2mani    = @(v,prob) vec2mani(v,prob,50);
        prob.Tolvar      = 9*50;
-       prob.nummanifold = 50;
+       prob.nummanifold = 1;
        prob.X0          = prob.x0;
     case 6
-       prob           = shapefit_leastsquares(500, 3);
-       prob.n         = 3;
-       prob.rank      = 500;
-       prob.Tolvar    = prob.n*prob.rank;
-       prob.vec2mani  = @vec2mani;
+       prob             = shapefit_leastsquares(500, 3);
+       prob.n           = 3;
+       prob.rank        = 500;
+       prob.Tolvar      = prob.n*prob.rank;
+       prob.vec2mani    = @vec2mani;
 end
 
 
