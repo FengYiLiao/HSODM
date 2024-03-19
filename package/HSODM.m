@@ -160,6 +160,7 @@ function Out = HSODM(prob,para)
     Out.stop = stop;
     Out.para = para;
     Out.X    = Xk;
+    Out.name = "HSODM";
     fprintf("Algorithm stop: " + stop + "\n");
     fprintf("iter: %d, ngrad: %+.3e \n",iter,Grad(end));
 end

@@ -1,11 +1,12 @@
 clc;clear;
+%This versio has more update!
 addpath("package\");
 addpath("data\");
 %cd data\
 % set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','mcp250-1.mat','mcp250-2.mat','mcp250-3.mat','mcp250-4.mat',...
 %       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 
-idx   = 6;
+idx   = 1;
 switch idx 
     case 1
        prob = dominant_invariant_subspace_problem([],  512, 12);
@@ -14,10 +15,11 @@ switch idx
        prob.Tolvar    = prob.n*prob.rank;
        prob.vec2mani  = @vec2mani;
     case 2
+       %168,240,20
        prob             = truncated_svd_problem([], 168, 240, 20);
        prob.vec2mani    = @(v,prob)  vec2mani(v,prob,168, 240, 20);
        prob.mani2vec    = @mani2vec;
-       prob.Tolvar      = 168*20+240*20;
+       prob.Tolvar      = 168*10+240*20;
        prob.nummanifold = 2;
        prob.dim{1}      = [168;20];
        prob.dim{2}      = [240;20];
@@ -64,13 +66,13 @@ end
 
 
 
-%saveroot = "result\hsodm"; 
+saveroot = "result\hsodm"; 
 dataroot = "data\";
 %load(dataroot+set{7});
 %load(dataroot+"G1.mat");
 %load(dataroot+"n1000r20");
 
-para.epislon    = 10^-8; %desired gradient accuracy
+para.epislon    = 10^-9; %desired gradient accuracy
 para.Maxiter    = 1000; %Maximum iterations
 para.beta       = 0.5;   %line search parameter: reduction
 para.gamma      = 2;     %line search parameter: a constant
@@ -78,12 +80,12 @@ para.Threshold  = 2;     %This is cap delta (trigangle) in the paper (Dead)
 para.nu         = 0; %sqrt(para.epislon)
 para.delta      = sqrt(para.epislon);     %the button right constant (control eigenvalue)
 para.eta        = 1;     %initial line search step size
-para.step       = 1;
+para.step       = 1;     %How often to print
 para.adp_delta  = false;  %adaptively tuning delta or not
 para.linesearch = true;
 para.L          = 2;   %adaptive parameter
-para.delta_min  = 10^-3;
-para.ck         = 1;
+para.delta_min  = 10^-3; %dead
+para.ck         = 1;    
 
 
 % prob.M         = obliquefactory(prob.rank,prob.n,true); %Create a mainfold
@@ -100,7 +102,7 @@ Out = HSODM(prob,para);  %main function
 %[x, xcost, info, options] = trustregions(prob); %manopt function
 %[x, xcost, info, options] = steepestdescent(prob);
 toc;
-
+save(Out,)
 
 
 % function y = routine(x,Xk,prob,para) %power method routine  %Xk is current iterate
