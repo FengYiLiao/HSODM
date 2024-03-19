@@ -6,7 +6,7 @@ addpath("data\");
 % set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','mcp250-1.mat','mcp250-2.mat','mcp250-3.mat','mcp250-4.mat',...
 %       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 
-idx   = 1;
+idx   = 6;
 switch idx 
     case 1
        prob = dominant_invariant_subspace_problem([],  512, 12);
@@ -102,7 +102,7 @@ Out = HSODM(prob,para);  %main function
 %[x, xcost, info, options] = trustregions(prob); %manopt function
 %[x, xcost, info, options] = steepestdescent(prob);
 toc;
-save(Out,)
+save( saveroot +'\Result_HSODM_shapefit',"Out");
 
 
 % function y = routine(x,Xk,prob,para) %power method routine  %Xk is current iterate
