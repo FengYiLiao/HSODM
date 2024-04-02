@@ -62,15 +62,18 @@ function Out = HSODM(prob,para)
  
         opts.v0 = prob.mani2vec(gk,prob);
         opts.v0 = [opts.v0;rand(1)];
-        opts.tol = 1e-6;
+        %opts.issym  = 1;
         if iter > 1
             if normgk <= 1e-2
-                para.eta   = 1;
+                opts.tol = 1e-3;
+                 para.gamma = 
+            else
+                opts.tol = 1e-7;
             end
         end
         opts.maxit = 150;
-        opts.p     = 50; %dimenion of the Kylov subspace 
-        opts.fail  = 'keep';
+        opts.p    =50;
+        opts.fail = 'keep';
 %         if para.nummanifold  == 1
 %             opts.v0 = [reshape(gk,[],1);rand(1)];
 %         else
@@ -78,6 +81,11 @@ function Out = HSODM(prob,para)
 %             %opts.v0 = zeros(prob.Tolvar+1);
 %         end
         
+        
+%        opts.p  = 20;
+%         opts.tol = 1e-3;
+%         opts.maxit = 10;
+        %[v,~]   = eigs(Afun,prob.n*prob.rank+1,1,'smallestreal',opts);
         [v,~]   = eigs(Afun,prob.Tolvar+1,1,'smallestreal',opts);
         
         %compensate computational error
