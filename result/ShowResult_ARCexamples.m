@@ -11,8 +11,8 @@ Out_hsodm_shapefit = load(datapath+"Result_HSODM_shapefit");
 Out_hsodm_SVD      = load(datapath+"Result_HSODM_SVD");
 Out_hsodm_Maxcut   = load(datapath+"Result_HSODM_Maxcut");
 
-Out_hsodm = {Out_hsodm_DIS,Out_hsodm_lrmc,Out_hsodm_rotation,...
-            Out_hsodm_shapefit,Out_hsodm_SVD,Out_hsodm_Maxcut};
+Out_hsodm = {Out_hsodm_DIS,Out_hsodm_SVD,Out_hsodm_lrmc,Out_hsodm_Maxcut,Out_hsodm_rotation,...
+            Out_hsodm_shapefit};
 
 
 numproblems = 6;
@@ -22,10 +22,10 @@ for i = 1:numproblems
     subplot(3,2,count);
     for j = 1:2%numsolvers
         iter = length(Out_manopt.Outs{i,j}.gradnorm);
-        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm);
+        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm,'LineWidth',2);
         hold on;
     end
-    semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Out.grad);
+    semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Out.grad,'LineWidth',2);
     count = count +1;
     legend('RTR','ARC','HSODM');
     xlabel('iteration','Interpreter','latex');
@@ -35,13 +35,13 @@ hold off
 count = 1;
 figure();
 for i = 1:numproblems
-    subplot(2,2,count);
+    subplot(3,2,count);
     for j = 3:numsolvers
         iter = length(Out_manopt.Outs{i,j}.gradnorm);
-        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm);
+        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm,'LineWidth',2);
         hold on;
     end
-    %semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Out.grad);
+    %semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Ou.grad);
     count = count +1;
     legend('CG','BB','GD','BFGS');
     xlabel('iteration','Interpreter','latex');
@@ -53,16 +53,18 @@ hold off
 count = 1;
 figure();
 for i = 1:numproblems
-    subplot(2,2,count);
+    subplot(3,2,count);
+    collectiters = [];
     for j = 1:numsolvers
         iter = length(Out_manopt.Outs{i,j}.gradnorm);
-        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm);
+        collectiters = [collectiters,iter];
+        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm,'LineWidth',2);
         hold on;
     end
-    semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Out.grad);
+    semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Out.grad,'LineWidth',2);
     %semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Out.grad);
     count = count +1;
-    xlim([1,200]);
+    xlim([1,max(collectiters)]);
     legend('RTR','ARC','CG','BB','GD','BFGS','HSODM');
     xlabel('iteration','Interpreter','latex');
     ylabel('gradnorm','Interpreter','latex');

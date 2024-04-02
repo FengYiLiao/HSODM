@@ -73,7 +73,7 @@ dataroot = "data\";
 %load(dataroot+"n1000r20");
 
 para.epislon    = 10^-6; %desired gradient accuracy
-para.Maxiter    = 1; %Maximum iterations
+para.Maxiter    = 1000; %Maximum iterations
 para.beta       = 0.5;   %line search parameter: reduction
 para.gamma      = 1;     %line search parameter: a constant
 para.Threshold  = 2;     %This is cap delta (trigangle) in the paper (Dead)
@@ -102,7 +102,7 @@ Out = HSODM(prob,para);  %main function
 %[x, xcost, info, options] = trustregions(prob); %manopt function
 %[x, xcost, info, options] = steepestdescent(prob);
 %toc;
-%save(saveroot +'\Result_HSODM_SVD',"Out");
+save(saveroot +'\Result_HSODM_Maxcut',"Out");
 
 
 % function y = routine(x,Xk,prob,para) %power method routine  %Xk is current iterate
