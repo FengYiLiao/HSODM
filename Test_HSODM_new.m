@@ -6,7 +6,7 @@ addpath(genpath("data\"));
 % set= {'mcp100.mat','mcp124-1.mat','mcp124-2.mat','mcp124-3.mat','mcp124-4.mat','mcp250-1.mat','mcp250-2.mat','mcp250-3.mat','mcp250-4.mat',...
 %       'mcp500-1.mat','mcp500-2.mat','mcp500-3.mat','mcp500-4.mat'};
 
-idx   = 2;
+idx   = 4;
 switch idx 
     case 1
        prob = dominant_invariant_subspace_problem([],  512, 12);

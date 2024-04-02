@@ -62,7 +62,7 @@ function Out = HSODM(prob,para)
  
         opts.v0 = prob.mani2vec(gk,prob);
         opts.v0 = [opts.v0;rand(1)];
-        opts.tol = 1e-6;
+        opts.tol = 1e-9;
         if iter > 1
             if normgk <= 1e-2
                 para.eta   = 1;
