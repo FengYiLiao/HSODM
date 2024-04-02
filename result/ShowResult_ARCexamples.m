@@ -4,20 +4,22 @@ Out_manopt =load("Result_manopt.mat");
 
 datapath = "hsodm\";
 
-Out_hsodm_DIS = load(datapath+"Result_HSODM_DIS");
-Out_hsodm_lrmc = load(datapath+"Result_HSODM_lrmc");
+Out_hsodm_DIS      = load(datapath+"Result_HSODM_DIS");
+Out_hsodm_lrmc     = load(datapath+"Result_HSODM_lrmc");
 Out_hsodm_rotation = load(datapath+"Result_HSODM_rotation");
 Out_hsodm_shapefit = load(datapath+"Result_HSODM_shapefit");
+Out_hsodm_SVD      = load(datapath+"Result_HSODM_SVD");
+Out_hsodm_Maxcut   = load(datapath+"Result_HSODM_Maxcut");
+
+Out_hsodm = {Out_hsodm_DIS,Out_hsodm_lrmc,Out_hsodm_rotation,...
+            Out_hsodm_shapefit,Out_hsodm_SVD,Out_hsodm_Maxcut};
 
 
-Out_hsodm = {Out_hsodm_DIS,Out_hsodm_lrmc,Out_hsodm_rotation,Out_hsodm_shapefit};
-
-
-numproblems = 4;
+numproblems = 6;
 numsolvers  = 6;
 count = 1; 
 for i = 1:numproblems
-    subplot(2,2,count);
+    subplot(3,2,count);
     for j = 1:2%numsolvers
         iter = length(Out_manopt.Outs{i,j}.gradnorm);
         semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm);

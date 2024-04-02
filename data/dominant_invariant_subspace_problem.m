@@ -53,4 +53,7 @@ function problem = dominant_invariant_subspace_problem(A, n, p)
 
     problem.name = sprintf('Dominant invariant subspace, Gr(%d, %d)', n, p);
 
+    rng(2019);
+    problem.x0   = problem.M.rand();
+
 end

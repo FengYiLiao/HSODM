@@ -25,7 +25,7 @@ switch idx
        prob.dim{2}      = [240;20];
        prob.numvar{1}   = prob.dim{1}(1)*prob.dim{1}(2);
        prob.numvar{2}   = prob.dim{2}(1)*prob.dim{2}(2);
-       %para.X0        = prob.x0;
+%       para.X0        = prob.x0;
     case 3
        prob             = lrmc_grassmann(2000, 5000, 10, 4);
        prob.n           = 2000;
@@ -43,7 +43,7 @@ switch idx
        prob.vec2mani    = @(v,prob) vec2mani(v,prob,50);
        prob.Tolvar      = 9*50;
        prob.nummanifold = 1;
-       prob.X0          = prob.x0;
+       %prob.X0          = prob.x0;
     case 6
        prob             = shapefit_leastsquares(500, 3);
        prob.n           = 3;
@@ -73,7 +73,7 @@ dataroot = "data\";
 %load(dataroot+"n1000r20");
 
 para.epislon    = 10^-6; %desired gradient accuracy
-para.Maxiter    = 1000; %Maximum iterations
+para.Maxiter    = 1; %Maximum iterations
 para.beta       = 0.5;   %line search parameter: reduction
 para.gamma      = 1;     %line search parameter: a constant
 para.Threshold  = 2;     %This is cap delta (trigangle) in the paper (Dead)
@@ -102,7 +102,7 @@ Out = HSODM(prob,para);  %main function
 %[x, xcost, info, options] = trustregions(prob); %manopt function
 %[x, xcost, info, options] = steepestdescent(prob);
 %toc;
-%save( saveroot +'\Result_HSODM_shapefit',"Out");
+%save(saveroot +'\Result_HSODM_SVD',"Out");
 
 
 % function y = routine(x,Xk,prob,para) %power method routine  %Xk is current iterate

@@ -63,5 +63,6 @@ function optproblem = lrmc_grassmann(m, n, r, osf)
     optproblem = rtrmc(lrmcproblem, false);
 
     optproblem.name = sprintf('LRMC on Grassmann, %dx%d, rank %d, osf %d', m, n, r, osf);
-    
+    rng(2019);
+    optproblem.x0   = optproblem.M.rand();
 end

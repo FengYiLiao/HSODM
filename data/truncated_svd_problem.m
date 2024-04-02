@@ -70,5 +70,6 @@ function problem = truncated_svd_problem(A, m, n, p)
     end
 
     problem.name = sprintf('Truncated SVD, St(%d, %d) x St(%d, %d)', m, p, n, p);    
-
+    rng(2019);
+    problem.x0   = problem.M.rand();
 end

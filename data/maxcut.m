@@ -53,5 +53,6 @@ function problem = maxcut(graphid, p)
         store = incrementcounter(store, 'hesscalls');
         store = incrementcounter(store, 'gradhesscalls');
     end
-
+    rng(2019);
+    problem.x0   = problem.M.rand();
 end

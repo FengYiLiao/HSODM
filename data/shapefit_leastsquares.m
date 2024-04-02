@@ -59,5 +59,6 @@ function problem = shapefit_leastsquares(n, d)
     end
 
     problem.name = sprintf('ShapeFit least-squares for %d points in R^{%d}', n, d);
-    
+    rng(2019);
+    problem.x0   = problem.M.rand();
 end

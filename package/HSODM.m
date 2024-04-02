@@ -4,8 +4,8 @@ function Out = HSODM(prob,para)
     
     obj  = [];
     Grad = [];
-    if isfield(prob,"X0")
-        X0   = prob.X0;
+    if isfield(prob,"x0")
+        X0   = prob.x0;
     else
         X0   = prob.M.rand(); %initial point
     end
@@ -37,12 +37,18 @@ function Out = HSODM(prob,para)
     end
 
     stop = "";
-    fprintf("iter  |   obj  |  rgrad  |   eta   |   delta \n");
-    rng(1);
+    fprintf("iter  |   obj  |  rgrad  |   eta   |   delta \n")
     prob.storedb = StoreDB(2);
     key = prob.storedb.getNewKey();
 
-    for iter = 1:para.Maxiter
+
+    [fk,gk] = getCostGrad(prob, Xk);
+    normgk  = prob.M.norm(Xk,gk);
+
+    obj    = [obj;fk];
+    Grad   = [Grad;normgk];
+
+    for iter = 2:para.Maxiter
         %Euclidean gradient to Riemannian gradient %As the initial guess for the power method
         %gk      = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
 
@@ -63,7 +69,7 @@ function Out = HSODM(prob,para)
         opts.v0 = prob.mani2vec(gk,prob);
         opts.v0 = [opts.v0;rand(1)];
         opts.tol = 1e-9;
-        if iter > 1
+        if iter > 2
             if normgk <= 1e-2
                 para.eta   = 1;
             end
