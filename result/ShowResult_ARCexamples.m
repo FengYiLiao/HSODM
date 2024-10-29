@@ -4,6 +4,13 @@ Out_manopt =load("Result_manopt.mat");
 
 datapath = "hsodm\";
 
+width  = 10;     % Width in inches
+height = 6;    % Height in inches
+alw    = 0.75;    % AxesLineWidth
+fsz    = 12;      % Fontsize
+lw     = 2;      % LineWidth
+msz    = 8;       % MarkerSize
+
 Out_hsodm_DIS      = load(datapath+"Result_HSODM_DIS");
 Out_hsodm_lrmc     = load(datapath+"Result_HSODM_lrmc");
 Out_hsodm_rotation = load(datapath+"Result_HSODM_rotation");
@@ -22,15 +29,52 @@ for i = 1:numproblems
     subplot(3,2,count);
     for j = 1:2%numsolvers
         iter = length(Out_manopt.Outs{i,j}.gradnorm);
-        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm,'LineWidth',2);
+        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm,'-o','LineWidth',1);
+        %ylim([10^(-11),Out_manopt.Outs{i,j}.gradnorm(1)]);
+        yticks([10^(-5),1]);
+        %yticklabels({'10^(-10)','10^(-5)','10'})
+        xlim([1,iter]);
+        set(gca,'TickLabelInterpreter','latex' ,'FontSize', fsz, 'LineWidth', alw); %<- Set properties
         hold on;
     end
-    semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Out.grad,'LineWidth',2);
+    semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Out.grad,'-o','LineWidth',1);
     count = count +1;
-    legend('RTR','ARC','HSODM');
     xlabel('iteration','Interpreter','latex');
-    ylabel('gradnorm','Interpreter','latex');
+    ylabel('$\|\nabla f(x_k)\|$','Interpreter','latex');
+    switch i
+        case 1
+            title('Dominant invariant subspace','interpreter','latex','FontSize', fsz);
+        case 2
+            title('Truncated SVD','interpreter','latex','FontSize', fsz);
+        case 3
+            title('Low-rank matrix completion','interpreter','latex','FontSize', fsz);
+        case 4
+            title('Max-Cut','interpreter','latex','FontSize', fsz);
+        case 5
+            title('Synchronization of rotations','interpreter','latex','FontSize', fsz);
+        case 6
+            title('ShapeFit','interpreter','latex','FontSize', fsz);
+    end
 end
+hold on
+
+
+
+
+set(gcf, 'Position', [300 100  width*100, height*100]); %<- Set size
+%legend('RTR','ARC','HSODM');
+
+lg = legend( 'RTR',...
+    'ARC', ...
+    'RHSODM','interpreter','latex','NumColumns',4,'Position',[0.115,-0.01,0.8,0.1],'FontSize', fsz);
+
+legend('boxoff');
+
+
+
+
+%print("Numerical-result",'-depsc','-tiff');
+
 hold off
 count = 1;
 figure();
@@ -38,14 +82,14 @@ for i = 1:numproblems
     subplot(3,2,count);
     for j = 3:numsolvers
         iter = length(Out_manopt.Outs{i,j}.gradnorm);
-        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm,'LineWidth',2);
+        semilogy(1:iter,Out_manopt.Outs{i,j}.gradnorm,'LineWidth',1);
         hold on;
     end
     %semilogy(1:Out_hsodm{i}.Out.iter,Out_hsodm{i}.Ou.grad);
     count = count +1;
     legend('CG','BB','GD','BFGS');
     xlabel('iteration','Interpreter','latex');
-    ylabel('gradnorm','Interpreter','latex');
+   % ylabel('\|\|','Interpreter','latex');
 end
 
 

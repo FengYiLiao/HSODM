@@ -37,7 +37,7 @@ function Out = HSODM(prob,para)
     end
 
     stop = "";
-    fprintf("iter  |   obj  |  rgrad  |   eta   |   delta \n")
+    fprintf("iter  |   obj  |  rgrad  |   eta   |   delta  |  rho  |  t\n")
     prob.storedb = StoreDB(2);
     key = prob.storedb.getNewKey();
 
@@ -48,6 +48,7 @@ function Out = HSODM(prob,para)
     obj    = [obj;fk];
     Grad   = [Grad;normgk];
 
+    update = true;
     for iter = 2:para.Maxiter
         %Euclidean gradient to Riemannian gradient %As the initial guess for the power method
         %gk      = prob.M.egrad2rgrad(Xk,prob.egrad(Xk)); 
@@ -84,7 +85,7 @@ function Out = HSODM(prob,para)
 %             %opts.v0 = zeros(prob.Tolvar+1);
 %         end
         
-        [v,~]   = eigs(Afun,prob.Tolvar+1,1,'smallestreal',opts);
+        [v,eig_val]   = eigs(Afun,prob.Tolvar+1,1,'smallestreal',opts);
         
         %compensate computational error
         %v       = real(v); 
@@ -120,8 +121,30 @@ function Out = HSODM(prob,para)
         end
         
         
+        %adaptively change delta
+        if para.adp_delta 
+            Hkdk        = getHessian(prob, Xk,dk*eta);
+            modelxk     = fk + prob.M.inner(Xk,gk,dk*eta)+0.5*prob.M.inner(Xk,Hkdk,dk*eta)+abs(eig_val)*(prob.M.norm(Xk,dk*eta))^2*(1/3);
+            xCandidate  = prob.M.retr(Xk,dk,eta);
+            fxCandidate = getCost(prob, xCandidate);
+            rhok        = abs((fk-fxCandidate)/(fk-modelxk));
+            if rhok >= para.rho2 %very sucessful
+               para.delta = min([para.delta*1.25,1]);
+               update = true;
+            elseif rhok >= para.rho1  %sucessful
+               para.delta = para.delta; %not change
+               update = true;
+            else %unsucessful
+               para.delta = max([para.delta*0.8,0]);
+               update = true;
+            end
+        end
+
+
         %retraction 
-        Xk     = prob.M.retr(Xk,dk,eta);
+        if update
+            Xk     = prob.M.retr(Xk,dk,eta);
+        end
         %Xk     = prob.M.exp(Xk,dk,eta);
 
         %normgk = norm(prob.M.egrad2rgrad(Xk,prob.egrad(Xk)),'fro');%euclidean gradient to Riemannian gradient
@@ -147,20 +170,14 @@ function Out = HSODM(prob,para)
             break;
         end
         if (mod(iter,para.step)== 0)
-            fprintf("%d     %3.1f  %+.3e   %3.4f   %3.4f\n",iter,obj(iter),normgk,eta,para.delta);
+           if para.adp_delta 
+               fprintf("%d     %3.1f  %+.3e   %3.4f   %3.4f   %+.3e   %3.4f \n",iter,obj(iter),normgk,eta,para.delta,rhok,tk);
+           else
+                fprintf("%d     %3.1f  %+.3e   %3.4f   %3.4f         %3.4f \n",iter,obj(iter),normgk,eta,para.delta,tk);
+           end
         end
 
-        %adaptively change delta
-        if para.adp_delta && normgk <=1
-%             if normgk <=10^-2
-%                 para.delta = 2;ß
-%             else
-%                 para.delta = max(para.delta_min,normgk^(1/2));
-%             end
-             %para.delta =normgk^(1/1.5);
-             %para.delta = sqrt(para.epislon);
-             para.delta = 1e-3;
-        end
+
     end
     if iter == para.Maxiter 
         stop = "reach maximum iteration!";
